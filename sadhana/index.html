@@ -1,0 +1,1567 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Sādhanā — Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0f;
+    --panel: #161617;
+    --panel-2: #1c1c1d;
+    --line: #26262a;
+    --ink: #e9e6df;
+    --ink-dim: #8d8a83;
+    --ink-faint: #5a5853;
+    --accent: #c9a96a;
+    --accent-dim: #6e5d40;
+    --warn: #b87060;
+    --good: #7a9a78;
+    --shadow: 0 1px 0 rgba(255,255,255,0.02), 0 8px 24px rgba(0,0,0,0.35);
+  }
+  html.light {
+    --bg: #f4f1ea;
+    --panel: #fbfaf5;
+    --panel-2: #ede9df;
+    --line: #d8d2c4;
+    --ink: #2a2823;
+    --ink-dim: #6b675e;
+    --ink-faint: #9a958a;
+    --accent: #8a6a2e;
+    --accent-dim: #b89860;
+    --shadow: 0 1px 0 rgba(0,0,0,0.02), 0 6px 18px rgba(0,0,0,0.06);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, sans-serif; font-weight: 400; -webkit-font-smoothing: antialiased; }
+  body { min-height: 100vh; }
+
+  h1, h2, h3, .serif {
+    font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+  h1 { font-size: 2.4rem; margin: 0 0 .25rem 0; }
+  h2 { font-size: 1.6rem; margin: 0 0 .5rem 0; }
+  h3 { font-size: 1.15rem; margin: 0 0 .5rem 0; }
+  .sub {
+    color: var(--ink-dim);
+    font-size: .82rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .sanskrit { font-style: italic; color: var(--accent); }
+
+  /* Layout */
+  .app { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+  nav.side {
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+    padding: 1.5rem 1rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  nav.side .brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.7rem;
+    color: var(--ink);
+    margin-bottom: .25rem;
+  }
+  nav.side .brand-sub {
+    color: var(--ink-faint);
+    font-size: .7rem;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+  }
+  nav.side a {
+    display: block;
+    padding: .55rem .75rem;
+    color: var(--ink-dim);
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: .92rem;
+    margin-bottom: 2px;
+    cursor: pointer;
+  }
+  nav.side a:hover { color: var(--ink); background: var(--panel-2); }
+  nav.side a.active { color: var(--accent); background: var(--panel-2); }
+  nav.side a .skt { font-style: italic; color: var(--accent-dim); margin-right: .35rem; }
+
+  main { padding: 2rem 2.5rem 4rem 2.5rem; max-width: 1080px; }
+  section.view { display: none; }
+  section.view.active { display: block; }
+
+  /* Panels */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1.25rem 1.4rem;
+    margin-bottom: 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .panel header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: .9rem; }
+  .panel header h2 { margin: 0; }
+  .panel header .sub { margin-left: auto; }
+
+  /* Grids */
+  .row { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .row > .col { flex: 1 1 240px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    nav.side { position: static; height: auto; }
+    main { padding: 1.25rem; }
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+
+  /* Inputs */
+  label.field { display: block; margin-bottom: .9rem; }
+  label.field .lbl { display: block; color: var(--ink-dim); font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; margin-bottom: .25rem; }
+  input[type=text], input[type=number], input[type=time], input[type=password], select, textarea {
+    width: 100%;
+    background: var(--panel-2);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: .55rem .7rem;
+    font-family: inherit;
+    font-size: .95rem;
+    outline: none;
+  }
+  textarea { resize: vertical; min-height: 80px; font-family: inherit; line-height: 1.5; }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent-dim); }
+
+  /* Buttons */
+  button, .btn {
+    background: var(--panel-2);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    padding: .55rem .9rem;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: .9rem;
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  button:hover, .btn:hover { border-color: var(--accent-dim); color: var(--accent); }
+  button.primary { background: var(--accent); color: #0e0e0f; border-color: var(--accent); }
+  button.primary:hover { background: var(--accent-dim); color: #fff; }
+  button.ghost { background: transparent; }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-row { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+  /* Tasks */
+  .tier-block { margin-bottom: 1rem; }
+  .tier-title { display: flex; align-items: baseline; gap: .5rem; margin-bottom: .5rem; }
+  .tier-title .skt { font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--accent); font-size: 1.2rem; }
+  .tier-title .name { color: var(--ink); font-size: .95rem; font-weight: 500; }
+  .tier-title .cap { color: var(--ink-faint); font-size: .78rem; margin-left: auto; }
+  .task {
+    display: grid;
+    grid-template-columns: 22px 1fr 70px 70px 30px;
+    gap: .5rem;
+    align-items: center;
+    padding: .55rem .6rem;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    margin-bottom: .35rem;
+    cursor: grab;
+  }
+  .task.dragging { opacity: .4; }
+  .task.locked { opacity: .35; pointer-events: none; }
+  .task input[type=text] { background: transparent; border: none; padding: 0; font-size: .95rem; }
+  .task input[type=number] { background: transparent; border: none; padding: 0; text-align: right; font-size: .85rem; color: var(--ink-dim); }
+  .task input[type=checkbox] { accent-color: var(--accent); }
+  .task .x { color: var(--ink-faint); cursor: pointer; text-align: center; font-size: 1.1rem; }
+  .task .x:hover { color: var(--warn); }
+  .task.tier-resistance { border-left: 2px solid var(--warn); }
+  .task.tier-deepwork { border-left: 2px solid var(--accent); }
+  .task.tier-maintenance { border-left: 2px solid var(--ink-faint); }
+  .task.done input[type=text] { text-decoration: line-through; color: var(--ink-faint); }
+  .task.active-deepwork { box-shadow: 0 0 0 1px var(--accent); border-color: var(--accent); }
+
+  /* Schedule */
+  .sched-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 60px 30px;
+    gap: .5rem;
+    align-items: center;
+    padding: .4rem .5rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .sched-row input[type=time] { background: transparent; border: none; color: var(--accent); font-size: .9rem; padding: 0; }
+  .sched-row input[type=text] { background: transparent; border: none; padding: 0; font-size: .95rem; }
+  .sched-row input[type=number] { background: transparent; border: none; text-align: right; color: var(--ink-dim); font-size: .85rem; }
+
+  /* Stats / metrics */
+  .stat { background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px; padding: .9rem 1rem; }
+  .stat .num { font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: var(--ink); line-height: 1; }
+  .stat .lbl { color: var(--ink-dim); font-size: .72rem; text-transform: uppercase; letter-spacing: .12em; margin-top: .3rem; }
+  .stat .sub-num { color: var(--ink-faint); font-size: .78rem; margin-top: .2rem; }
+
+  /* Timer */
+  .timer-display {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 4rem;
+    line-height: 1;
+    color: var(--accent);
+    text-align: center;
+    padding: 1rem 0 .5rem 0;
+    letter-spacing: .04em;
+  }
+  .timer-meta { text-align: center; color: var(--ink-dim); font-size: .85rem; }
+  .timer-meta.warn { color: var(--warn); }
+
+  /* Quote */
+  .quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.4rem;
+    line-height: 1.5;
+    color: var(--ink);
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 2rem 1rem;
+  }
+  .quote .attr { display: block; font-style: normal; color: var(--ink-faint); font-size: .85rem; letter-spacing: .12em; text-transform: uppercase; margin-top: .8rem; }
+
+  /* Svadhyaya history */
+  .review-card {
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1rem 1.2rem;
+    margin-bottom: .75rem;
+  }
+  .review-card .date { color: var(--accent); font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; margin-bottom: .5rem; }
+  .review-card .q { color: var(--ink-dim); font-size: .8rem; margin-top: .6rem; }
+  .review-card .a { color: var(--ink); font-size: .95rem; white-space: pre-wrap; }
+
+  /* SVG charts */
+  svg.chart { width: 100%; height: 140px; display: block; }
+  .chart-grid line { stroke: var(--line); stroke-width: 1; }
+  .chart-line { fill: none; stroke: var(--accent); stroke-width: 1.5; }
+  .chart-bar { fill: var(--accent-dim); }
+  .chart-axis { fill: var(--ink-faint); font-size: 10px; font-family: 'Inter', sans-serif; }
+
+  /* Misc */
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: .72rem;
+    color: var(--ink-dim);
+    letter-spacing: .08em;
+    margin-right: .35rem;
+  }
+  .pill.on { color: var(--accent); border-color: var(--accent-dim); }
+  .pill.warn { color: var(--warn); border-color: var(--warn); }
+  .hint { color: var(--ink-faint); font-size: .82rem; line-height: 1.5; }
+  .divider { height: 1px; background: var(--line); margin: 1rem 0; }
+  .row-tight { display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; }
+  .toast {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    background: var(--panel-2); border: 1px solid var(--accent-dim);
+    color: var(--ink); padding: .6rem .9rem; border-radius: 4px;
+    box-shadow: var(--shadow); z-index: 1000;
+    opacity: 0; transform: translateY(10px); transition: all .2s ease;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="side">
+    <div class="brand">Sādhanā</div>
+    <div class="brand-sub">The Practice</div>
+    <a data-view="home" class="active"><span class="skt">Smṛti</span>Today</a>
+    <a data-view="morning"><span class="skt">Prātaḥ</span>Morning</a>
+    <a data-view="boxing"><span class="skt">Yuddha</span>Boxing</a>
+    <a data-view="tasks"><span class="skt">Tapas</span>Tasks</a>
+    <a data-view="schedule"><span class="skt">Kāla</span>Schedule</a>
+    <a data-view="svadhyaya"><span class="skt">Svādhyāya</span>Review</a>
+    <a data-view="metrics"><span class="skt">Saṃkhyā</span>Metrics</a>
+    <a data-view="settings"><span class="skt">Vidhi</span>Settings</a>
+    <div style="margin-top:2rem;color:var(--ink-faint);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;">Agent</div>
+    <a href="agent.html"><span class="skt">Darpaṇa</span>Reflect</a>
+  </nav>
+
+  <main>
+    <!-- HOME -->
+    <section class="view active" id="view-home">
+      <div class="quote" id="rotating-quote"></div>
+
+      <div class="grid-4">
+        <div class="stat"><div class="num" id="s-streak-wake">0</div><div class="lbl">Wake by 6 streak</div></div>
+        <div class="stat"><div class="num" id="s-streak-breath">0</div><div class="lbl">Breathwork streak</div></div>
+        <div class="stat"><div class="num" id="s-streak-box">0</div><div class="lbl">Boxing streak</div></div>
+        <div class="stat"><div class="num" id="s-streak-resist">0</div><div class="lbl">3-resistance streak</div></div>
+      </div>
+
+      <div class="panel" style="margin-top:1.25rem;">
+        <header><h2>Today <span class="sanskrit">· Adya</span></h2><span class="sub" id="today-date"></span></header>
+        <div class="row">
+          <div class="col">
+            <div class="hint">Wake</div>
+            <div id="home-wake" style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--accent);">—</div>
+          </div>
+          <div class="col">
+            <div class="hint">Breathwork best hold</div>
+            <div id="home-breath" style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--accent);">—</div>
+          </div>
+          <div class="col">
+            <div class="hint">Run resistance</div>
+            <div id="home-runres" style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--accent);">—</div>
+          </div>
+          <div class="col">
+            <div class="hint">Boxing rounds</div>
+            <div id="home-rounds" style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--accent);">—</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="hint" id="home-resistance-summary">No resistance tasks logged yet today.</div>
+      </div>
+    </section>
+
+    <!-- MORNING -->
+    <section class="view" id="view-morning">
+      <h1>Prātaḥ <span class="sanskrit">· Morning Anchor</span></h1>
+      <p class="hint">5:30–6:00. Willpower is built by doing what you resist while the rest of the world is still asleep.</p>
+
+      <div class="grid-2">
+        <div class="panel">
+          <header><h2>Wake</h2></header>
+          <div id="wake-status" style="margin-bottom:.75rem;color:var(--ink-dim);">Not logged today.</div>
+          <div class="btn-row">
+            <button id="btn-wake" class="primary">Log wake now</button>
+            <label style="display:flex;align-items:center;gap:.5rem;margin-left:.5rem;">
+              <input type="checkbox" id="chk-coffee"> Coffee
+            </label>
+          </div>
+        </div>
+
+        <div class="panel">
+          <header><h2>3km Run</h2><span class="sub">aMCC metric</span></header>
+          <div class="row">
+            <label class="field col"><span class="lbl">Distance (km)</span><input type="number" id="run-km" step="0.1" value="3"></label>
+            <label class="field col"><span class="lbl">Time (mm:ss)</span><input type="text" id="run-time" placeholder="15:30"></label>
+            <label class="field col"><span class="lbl">Resistance 1–10</span><input type="number" id="run-resist" min="1" max="10" value="5"></label>
+          </div>
+          <button id="btn-run-save">Save run</button>
+          <div class="hint" id="run-summary" style="margin-top:.5rem;"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <header><h2>Breathwork <span class="sanskrit">· Prāṇāyāma</span></h2><span class="sub">Wim Hof default</span></header>
+        <div class="row">
+          <label class="field col"><span class="lbl">Rounds</span><input type="number" id="bw-rounds" value="3" min="1" max="6"></label>
+          <label class="field col"><span class="lbl">Breaths / round</span><input type="number" id="bw-breaths" value="30" min="10" max="60"></label>
+        </div>
+        <div class="timer-display" id="bw-timer">00:00</div>
+        <div class="timer-meta" id="bw-meta">Idle</div>
+        <div class="btn-row" style="justify-content:center;margin-top:1rem;">
+          <button id="bw-start" class="primary">Begin</button>
+          <button id="bw-hold">Start hold</button>
+          <button id="bw-stop-hold">Stop hold</button>
+          <button id="bw-reset" class="ghost">Reset</button>
+        </div>
+        <div class="hint" style="margin-top:1rem;">
+          Personal best hold: <span id="bw-pb" style="color:var(--accent);">—</span>.
+          Today's holds: <span id="bw-today">—</span>.
+        </div>
+      </div>
+    </section>
+
+    <!-- BOXING -->
+    <section class="view" id="view-boxing">
+      <h1>Yuddha <span class="sanskrit">· Boxing</span></h1>
+      <p class="hint">The integration vessel. <em>Ekāgratā</em>, <em>tapas</em>, <em>svādhyāya</em>, and the witness — all become non-optional.</p>
+
+      <div class="panel">
+        <header><h2>Round timer</h2><span class="sub">Web Audio · survives backgrounded tab</span></header>
+        <div class="grid-3">
+          <label class="field"><span class="lbl">Rounds</span><input type="number" id="box-rounds" value="6" min="1" max="20"></label>
+          <label class="field"><span class="lbl">Round (sec)</span><input type="number" id="box-round-sec" value="180"></label>
+          <label class="field"><span class="lbl">Rest (sec)</span><input type="number" id="box-rest-sec" value="60"></label>
+        </div>
+        <div class="timer-display" id="box-timer">00:00</div>
+        <div class="timer-meta" id="box-meta">Round 0 / 0 · idle</div>
+        <div class="btn-row" style="justify-content:center;margin-top:1rem;">
+          <button id="box-start" class="primary">Bell</button>
+          <button id="box-pause">Pause</button>
+          <button id="box-reset" class="ghost">Reset</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <header><h2>Session log</h2><span class="sub">resistance auto-flag</span></header>
+        <div class="grid-2">
+          <label class="field"><span class="lbl">Type</span>
+            <select id="box-type">
+              <option>Roadwork</option><option>Shadowboxing</option><option>Heavy bag</option>
+              <option>Pad work</option><option>Sparring</option><option>Technical drilling</option><option>S&amp;C</option>
+            </select>
+          </label>
+          <label class="field"><span class="lbl">Rounds completed</span><input type="number" id="box-completed" min="0"></label>
+          <label class="field"><span class="lbl">Perceived exertion 1–10</span><input type="number" id="box-exertion" min="1" max="10"></label>
+          <label class="field"><span class="lbl">Resistance 1–10</span><input type="number" id="box-resist" min="1" max="10"></label>
+          <label class="field" style="grid-column:1 / span 2;"><span class="lbl">Technical focus</span><input type="text" id="box-focus" placeholder="e.g. left hook off the jab, slip-and-counter"></label>
+        </div>
+        <div id="spar-fields" style="display:none;">
+          <div class="divider"></div>
+          <h3>Sparring · <span class="sanskrit">the mirror that does not flatter</span></h3>
+          <div class="grid-2">
+            <label class="field"><span class="lbl">Partner</span><input type="text" id="box-partner"></label>
+            <label class="field"><span class="lbl">What got exposed</span><input type="text" id="box-exposed" placeholder="shadow prompt"></label>
+            <label class="field" style="grid-column:1 / span 2;"><span class="lbl">What to drill next</span><input type="text" id="box-drill"></label>
+          </div>
+        </div>
+        <button id="box-save" class="primary">Save session</button>
+        <div class="hint" id="box-saved-summary" style="margin-top:.5rem;"></div>
+      </div>
+
+      <div class="panel">
+        <header><h2>Weekly template</h2><span class="sub">editable</span></header>
+        <div id="weekly-template"></div>
+        <button id="weekly-save" style="margin-top:.5rem;">Save template</button>
+      </div>
+    </section>
+
+    <!-- TASKS -->
+    <section class="view" id="view-tasks">
+      <h1>Tapas <span class="sanskrit">· Three Tiers</span></h1>
+      <p class="hint">Three tiers, visually distinct. Resistance is capped at three — the aMCC builders. Deep work locks the other deep-work tasks while running. Maintenance is checklist.</p>
+
+      <div class="panel">
+        <div id="tier-resistance" class="tier-block">
+          <div class="tier-title">
+            <span class="skt">Tapas</span><span class="name">Resistance — max 3 / day</span>
+            <span class="cap" id="cap-resistance"></span>
+          </div>
+          <div class="task-list" data-tier="resistance"></div>
+          <button data-add="resistance" class="ghost">+ Add resistance</button>
+        </div>
+        <div class="divider"></div>
+        <div id="tier-deepwork" class="tier-block">
+          <div class="tier-title">
+            <span class="skt">Ekāgratā</span><span class="name">Deep Work — single-pointed</span>
+          </div>
+          <div class="task-list" data-tier="deepwork"></div>
+          <button data-add="deepwork" class="ghost">+ Add deep work</button>
+          <div class="hint" id="deepwork-active" style="margin-top:.5rem;"></div>
+        </div>
+        <div class="divider"></div>
+        <div id="tier-maintenance" class="tier-block">
+          <div class="tier-title">
+            <span class="skt">Niyama</span><span class="name">Maintenance</span>
+          </div>
+          <div class="task-list" data-tier="maintenance"></div>
+          <button data-add="maintenance" class="ghost">+ Add maintenance</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCHEDULE -->
+    <section class="view" id="view-schedule">
+      <h1>Kāla <span class="sanskrit">· Time</span></h1>
+      <p class="hint">Time-blocked. Editable. Save your own templates. The defaults are weekday, Saturday, Sunday — pick which to load.</p>
+
+      <div class="panel">
+        <header><h2>Today's schedule</h2>
+          <div class="btn-row">
+            <button data-load-default="weekday">Weekday default</button>
+            <button data-load-default="saturday">Saturday</button>
+            <button data-load-default="sunday">Sunday</button>
+          </div>
+        </header>
+        <div id="schedule-list"></div>
+        <div class="btn-row" style="margin-top:.75rem;">
+          <button id="sched-add">+ Add block</button>
+          <button id="sched-save-template">Save as template…</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <header><h2>Saved templates</h2></header>
+        <div id="saved-templates"></div>
+      </div>
+    </section>
+
+    <!-- SVADHYAYA -->
+    <section class="view" id="view-svadhyaya">
+      <h1>Svādhyāya <span class="sanskrit">· Self-Study</span></h1>
+      <p class="hint">19:30. Soft-prompted. Four questions. The recurrence test is the fourth — Nietzsche's amor fati and Patañjali's <em>īśvara-praṇidhāna</em> meeting on the same line.</p>
+
+      <div class="panel">
+        <header><h2>Tonight's review</h2><span class="sub" id="sv-date"></span></header>
+        <label class="field"><span class="lbl">1. What did I resist today, and did I move toward it or away?</span>
+          <textarea id="sv-q1"></textarea></label>
+        <label class="field"><span class="lbl">2. What did I react to more strongly than warranted? <em>(shadow prompt)</em></span>
+          <textarea id="sv-q2"></textarea></label>
+        <label class="field"><span class="lbl">3. If I trained: what got exposed, what am I drilling next?</span>
+          <textarea id="sv-q3"></textarea></label>
+        <label class="field"><span class="lbl">4. Would I live this exact day again, unchanged, forever? Y/N + one sentence.</span>
+          <textarea id="sv-q4" placeholder="Y / N — one sentence."></textarea></label>
+        <div class="btn-row">
+          <button id="sv-save" class="primary">Save review</button>
+          <span class="hint" id="sv-saved-meta" style="margin-left:.5rem;align-self:center;"></span>
+        </div>
+        <div class="hint" id="sv-agent-hint" style="margin-top:.75rem;"></div>
+      </div>
+
+      <div class="panel">
+        <header><h2>History</h2><span class="sub" id="sv-count"></span></header>
+        <div id="sv-history"></div>
+      </div>
+    </section>
+
+    <!-- METRICS -->
+    <section class="view" id="view-metrics">
+      <h1>Saṃkhyā <span class="sanskrit">· Measure</span></h1>
+      <p class="hint">Data is the reward. No streaks-as-gamification — just compounding.</p>
+
+      <div class="grid-4">
+        <div class="stat"><div class="num" id="m-resistance-30">0</div><div class="lbl">Resistance tasks · 30d</div></div>
+        <div class="stat"><div class="num" id="m-deepwork-30">0</div><div class="lbl">Deep work hours · 30d</div></div>
+        <div class="stat"><div class="num" id="m-km-30">0</div><div class="lbl">Km run · 30d</div></div>
+        <div class="stat"><div class="num" id="m-rounds-30">0</div><div class="lbl">Boxing rounds · 30d</div></div>
+      </div>
+
+      <div class="panel" style="margin-top:1.25rem;">
+        <header><h2>Resistance score trend</h2><span class="sub">30 days · aMCC line</span></header>
+        <svg class="chart" id="chart-resistance" viewBox="0 0 600 140"></svg>
+      </div>
+
+      <div class="panel">
+        <header><h2>Deep work minutes</h2><span class="sub">30 days</span></header>
+        <svg class="chart" id="chart-deepwork" viewBox="0 0 600 140"></svg>
+      </div>
+
+      <div class="panel">
+        <header><h2>Recurrence — would I live this day again?</h2><span class="sub">Yes / No ratio over time</span></header>
+        <svg class="chart" id="chart-recurrence" viewBox="0 0 600 140"></svg>
+      </div>
+
+      <div class="panel">
+        <header><h2>Boxing rounds</h2><span class="sub">30 days</span></header>
+        <svg class="chart" id="chart-rounds" viewBox="0 0 600 140"></svg>
+      </div>
+
+      <div class="panel">
+        <header><h2>Sparring · what got exposed</h2><span class="sub">shadow integration log</span></header>
+        <div id="sparring-timeline"></div>
+      </div>
+
+      <div class="panel">
+        <header><h2>Monthly compound</h2></header>
+        <div id="monthly-compound"></div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="view" id="view-settings">
+      <h1>Vidhi <span class="sanskrit">· Settings</span></h1>
+
+      <div class="panel">
+        <header><h2>Agent unlock</h2><span class="sub">14-day rule</span></header>
+        <div id="unlock-status" class="hint" style="font-size:1rem;line-height:1.6;"></div>
+        <div class="divider"></div>
+        <div class="hint">
+          The agent is gated by two things:
+          <span class="pill" id="pill-flag">flag</span>
+          <span class="pill" id="pill-days">days</span>
+          Both must be green before <code>agent.html</code> activates.
+        </div>
+      </div>
+
+      <div class="panel">
+        <header><h2>Anthropic API key</h2><span class="sub">stored locally only</span></header>
+        <label class="field"><span class="lbl">API key</span><input type="password" id="api-key" placeholder="sk-ant-..."></label>
+        <div class="btn-row">
+          <button id="api-save" class="primary">Save key</button>
+          <button id="api-clear" class="ghost">Clear</button>
+        </div>
+        <div class="hint" style="margin-top:.5rem;">
+          The key is stored in <code>localStorage</code> on this machine only.
+          It is transmitted exclusively to <code>api.anthropic.com</code> for
+          Claude calls. Never logged, never sent anywhere else.
+        </div>
+      </div>
+
+      <div class="panel">
+        <header><h2>Stage 4 — research</h2><span class="sub">separate opt-in</span></header>
+        <label style="display:flex;align-items:center;gap:.5rem;">
+          <input type="checkbox" id="research-toggle">
+          <span>Enable supplementary research</span>
+        </label>
+        <div class="hint" style="margin-top:.5rem;">
+          Default off. This layer can drift if unsupervised. Capped at 5
+          queries per week. Always presented as "Supplementary, unverified
+          by you" until you mark Reviewed.
+        </div>
+      </div>
+
+      <div class="panel">
+        <header><h2>Appearance</h2></header>
+        <label style="display:flex;align-items:center;gap:.5rem;">
+          <input type="checkbox" id="light-toggle">
+          <span>Warm off-white (light)</span>
+        </label>
+      </div>
+
+      <div class="panel">
+        <header><h2>Backup</h2></header>
+        <div class="btn-row">
+          <button id="export-json">Export JSON</button>
+          <button id="import-json">Import JSON</button>
+          <input type="file" id="import-file" style="display:none;" accept="application/json">
+        </div>
+        <div class="hint" style="margin-top:.5rem;">All data lives in <code>localStorage</code>. Back it up.</div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="lib/storage.js"></script>
+<script>
+'use strict';
+
+/* ───────── Quotes ───────── */
+const QUOTES = [
+  ['You have a right to action alone, never to its fruits.', 'Gītā 2.47'],
+  ['Klaibyaṃ mā sma gamaḥ pārtha — yield not to unmanliness. Stand up.', 'Gītā 2.3'],
+  ['He who has a why to live can bear almost any how.', 'Nietzsche'],
+  ['One does not become enlightened by imagining figures of light, but by making the darkness conscious.', 'Jung'],
+  ['Abhyāsa-vairāgyābhyāṃ tan-nirodhaḥ.', 'Yoga Sūtra 1.12'],
+  ['Everybody has a plan until they get punched in the mouth.', 'Tyson'],
+  ['The cave you fear to enter holds the treasure you seek.', 'Campbell'],
+];
+
+/* ───────── Schedule defaults ───────── */
+const SCHEDULE_DEFAULTS = {
+  weekday: [
+    ['05:30', 'Wake + coffee', 15],
+    ['05:45', 'Breathwork · Prāṇāyāma', 30],
+    ['06:15', '3km run', 30],
+    ['07:00', 'Shower + breakfast', 30],
+    ['07:30', 'Deep Work 1', 90],
+    ['09:00', 'Break', 20],
+    ['09:20', 'Deep Work 2', 90],
+    ['10:50', 'Maintenance', 70],
+    ['12:00', 'Lunch', 60],
+    ['13:00', 'Deep Work 3', 90],
+    ['14:30', 'Break', 20],
+    ['14:50', 'Deep Work 4', 60],
+    ['16:30', 'Boxing · Yuddha', 100],
+    ['18:30', 'Dinner + social', 60],
+    ['19:30', 'Svādhyāya · review', 30],
+    ['20:00', 'Reading', 90],
+    ['21:30', 'Wind down', 30],
+    ['22:00', 'Sleep', 0],
+  ],
+  saturday: [
+    ['06:00', 'Wake + coffee', 15],
+    ['06:30', 'Long roadwork', 90],
+    ['08:30', 'Breakfast + shower', 60],
+    ['10:00', 'Technical boxing', 120],
+    ['12:30', 'Lunch', 60],
+    ['14:00', 'Light cognitive', 120],
+    ['16:00', 'Walk · pratyāhāra', 60],
+    ['19:00', 'Dinner + social', 90],
+    ['20:30', 'Reading', 90],
+    ['22:00', 'Sleep', 0],
+  ],
+  sunday: [
+    ['07:00', 'Wake + coffee', 30],
+    ['08:00', 'Active recovery walk', 60],
+    ['09:00', 'Weekly review', 90],
+    ['10:30', 'Reading', 120],
+    ['12:30', 'Lunch', 60],
+    ['14:00', 'Open block', 180],
+    ['17:00', 'Plan the week', 60],
+    ['18:30', 'Dinner', 60],
+    ['20:00', 'Reading', 120],
+    ['22:00', 'Sleep', 0],
+  ],
+};
+
+const WEEKLY_TEMPLATE_DEFAULT = {
+  Mon: 'Technical + bag',
+  Tue: 'S&C + shadow',
+  Wed: 'Pad work',
+  Thu: 'S&C + bag',
+  Fri: 'Sparring',
+  Sat: 'Long roadwork + technical',
+  Sun: 'Rest / active recovery',
+};
+
+/* ───────── Helpers ───────── */
+const S = window.SadhanaStorage;
+const $ = (s, root = document) => root.querySelector(s);
+const $$ = (s, root = document) => Array.from(root.querySelectorAll(s));
+const today = () => S.today();
+const uid = () => Math.random().toString(36).slice(2, 10);
+const fmtTime = (sec) => {
+  const m = Math.floor(sec / 60), s = sec % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+};
+const parseMmSs = (str) => {
+  if (!str) return 0;
+  const m = str.match(/^(\d+):(\d{1,2})$/);
+  if (!m) return Number(str) || 0;
+  return Number(m[1]) * 60 + Number(m[2]);
+};
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._h);
+  t._h = setTimeout(() => t.classList.remove('show'), 2200);
+}
+function ensureDay(state, date = today()) {
+  if (!state.days[date]) state.days[date] = { date };
+  return state.days[date];
+}
+
+/* ───────── Navigation ───────── */
+function navigate(view) {
+  $$('section.view').forEach(v => v.classList.remove('active'));
+  const target = $('#view-' + view);
+  if (target) target.classList.add('active');
+  $$('nav.side a').forEach(a => a.classList.toggle('active', a.dataset.view === view));
+  if (view === 'metrics') renderMetrics();
+  if (view === 'svadhyaya') renderSvHistory();
+  if (view === 'home') renderHome();
+  if (view === 'tasks') renderTasks();
+  if (view === 'schedule') renderSchedule();
+  if (view === 'boxing') renderWeekly();
+  if (view === 'settings') renderSettings();
+  if (view === 'morning') renderMorning();
+}
+$$('nav.side a[data-view]').forEach(a => a.addEventListener('click', () => navigate(a.dataset.view)));
+
+/* ───────── Home ───────── */
+function rotateQuote() {
+  const idx = Math.floor((Date.now() / (1000 * 60 * 60 * 6)) % QUOTES.length);
+  const [text, attr] = QUOTES[idx];
+  $('#rotating-quote').innerHTML = `“${text}”<span class="attr">— ${attr}</span>`;
+}
+function renderHome() {
+  rotateQuote();
+  $('#today-date').textContent = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+  const s = S.read();
+  const t = today();
+  const day = s.days[t] || {};
+  $('#home-wake').textContent = day.wake ? day.wake.isoTime.slice(11, 16) : '—';
+  $('#home-breath').textContent = day.breathwork && day.breathwork.best ? day.breathwork.best + 's' : '—';
+  $('#home-runres').textContent = day.run ? day.run.resistance + '/10' : '—';
+  $('#home-rounds').textContent = day.boxing ? (day.boxing.rounds || 0) : '—';
+  const tasks = (s.tasks[t] || []).filter(x => x.tier === 'resistance');
+  const done = tasks.filter(x => x.done).length;
+  $('#home-resistance-summary').textContent =
+    tasks.length === 0
+      ? 'No resistance tasks set today. Three is the cap.'
+      : `Resistance: ${done} / ${tasks.length} complete${done === 3 ? ' — all three.' : '.'}`;
+  $('#s-streak-wake').textContent = streak((d) => d.wake);
+  $('#s-streak-breath').textContent = streak((d) => d.breathwork && d.breathwork.best);
+  $('#s-streak-box').textContent = streak((d) => d.boxing && d.boxing.rounds > 0);
+  $('#s-streak-resist').textContent = streak((d, date) => {
+    const tasksForDate = (s.tasks[date] || []).filter(x => x.tier === 'resistance');
+    return tasksForDate.length === 3 && tasksForDate.every(x => x.done);
+  });
+}
+function streak(predicate) {
+  const s = S.read();
+  let n = 0;
+  for (let i = 0; i < 400; i++) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const iso = d.toISOString().slice(0, 10);
+    const day = s.days[iso];
+    if (!day) { if (i === 0) continue; break; }
+    if (predicate(day, iso)) n++;
+    else if (i > 0) break;
+  }
+  return n;
+}
+
+/* ───────── Morning: Wake + Run ───────── */
+function renderMorning() {
+  const s = S.read();
+  const d = s.days[today()] || {};
+  $('#wake-status').textContent = d.wake
+    ? `Logged ${d.wake.isoTime.slice(11, 16)}${d.wake.coffee ? ' · coffee ✓' : ''}`
+    : 'Not logged today.';
+  $('#chk-coffee').checked = d.wake ? d.wake.coffee : false;
+  $('#run-summary').textContent = d.run
+    ? `Saved: ${d.run.distanceKm}km · ${fmtTime(d.run.timeSec)} · resistance ${d.run.resistance}/10`
+    : '';
+  $('#bw-pb').textContent = pbHold() ? pbHold() + 's' : '—';
+  $('#bw-today').textContent = (d.breathwork && d.breathwork.holds && d.breathwork.holds.length)
+    ? d.breathwork.holds.map(x => x + 's').join(' · ')
+    : '—';
+}
+function pbHold() {
+  const s = S.read();
+  let best = 0;
+  for (const d of Object.values(s.days)) {
+    if (d.breathwork && d.breathwork.best && d.breathwork.best > best) best = d.breathwork.best;
+  }
+  return best;
+}
+$('#btn-wake').addEventListener('click', () => {
+  S.update(s => {
+    const d = ensureDay(s);
+    d.wake = { isoTime: new Date().toISOString(), coffee: $('#chk-coffee').checked };
+  });
+  renderMorning();
+  toast('Wake logged.');
+});
+$('#chk-coffee').addEventListener('change', () => {
+  S.update(s => {
+    const d = ensureDay(s);
+    if (!d.wake) d.wake = { isoTime: new Date().toISOString(), coffee: false };
+    d.wake.coffee = $('#chk-coffee').checked;
+  });
+});
+$('#btn-run-save').addEventListener('click', () => {
+  const km = Number($('#run-km').value) || 3;
+  const timeSec = parseMmSs($('#run-time').value);
+  const resistance = Number($('#run-resist').value) || 5;
+  S.update(s => {
+    const d = ensureDay(s);
+    d.run = { distanceKm: km, timeSec, resistance };
+    s.runs.push({ date: today(), distanceKm: km, timeSec, resistance });
+  });
+  renderMorning();
+  toast('Run saved.');
+});
+
+/* ───────── Breathwork timer ───────── */
+const audio = (() => {
+  let ctx;
+  function ctxLazy() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); return ctx; }
+  function beep(freq = 440, duration = 0.18, type = 'sine', gain = 0.2) {
+    const ac = ctxLazy();
+    const osc = ac.createOscillator();
+    const g = ac.createGain();
+    osc.type = type; osc.frequency.value = freq;
+    g.gain.value = gain;
+    osc.connect(g); g.connect(ac.destination);
+    osc.start();
+    g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + duration);
+    osc.stop(ac.currentTime + duration);
+  }
+  return {
+    breath() { beep(660, 0.08, 'sine', 0.12); },
+    bell() { beep(220, 0.6, 'triangle', 0.35); setTimeout(() => beep(330, 0.4, 'triangle', 0.25), 80); },
+    warning() { beep(880, 0.12, 'square', 0.18); },
+  };
+})();
+const bw = { phase: 'idle', round: 0, breath: 0, holdSec: 0, totalElapsed: 0, _t: null, holds: [] };
+function renderBw() {
+  if (bw.phase === 'idle') { $('#bw-timer').textContent = '00:00'; $('#bw-meta').textContent = 'Idle'; return; }
+  if (bw.phase === 'breathing') {
+    $('#bw-timer').textContent = `R${bw.round}  ·  ${bw.breath}/${Number($('#bw-breaths').value)}`;
+    $('#bw-meta').textContent = 'Breathing — slow nasal in, mouth out.';
+  } else if (bw.phase === 'hold') {
+    $('#bw-timer').textContent = fmtTime(bw.holdSec);
+    $('#bw-meta').textContent = 'Hold — exhale, retain, witness.';
+  } else if (bw.phase === 'recovery') {
+    $('#bw-timer').textContent = fmtTime(15 - bw.holdSec);
+    $('#bw-meta').textContent = 'Recovery — deep inhale, hold 15s.';
+  }
+}
+function bwReset() {
+  if (bw._t) { clearInterval(bw._t); bw._t = null; }
+  bw.phase = 'idle'; bw.round = 0; bw.breath = 0; bw.holdSec = 0; bw.holds = [];
+  renderBw();
+}
+$('#bw-start').addEventListener('click', () => {
+  bwReset();
+  bw.phase = 'breathing'; bw.round = 1; bw.breath = 0;
+  const breaths = Number($('#bw-breaths').value);
+  bw._t = setInterval(() => {
+    bw.breath++;
+    audio.breath();
+    if (bw.breath >= breaths) {
+      clearInterval(bw._t);
+      bw.phase = 'hold';
+      bw.holdSec = 0;
+      bw._t = setInterval(() => { bw.holdSec++; renderBw(); }, 1000);
+      audio.bell();
+    }
+    renderBw();
+  }, 1800); // ~33 breaths/min slow tempo
+  renderBw();
+});
+$('#bw-hold').addEventListener('click', () => {
+  if (bw._t) clearInterval(bw._t);
+  bw.phase = 'hold'; bw.holdSec = 0;
+  bw._t = setInterval(() => { bw.holdSec++; renderBw(); }, 1000);
+  renderBw();
+});
+$('#bw-stop-hold').addEventListener('click', () => {
+  if (bw.phase !== 'hold') return;
+  bw.holds.push(bw.holdSec);
+  clearInterval(bw._t);
+  audio.bell();
+  const rounds = Number($('#bw-rounds').value);
+  if (bw.round < rounds) {
+    bw.round++; bw.breath = 0; bw.phase = 'breathing';
+    const breaths = Number($('#bw-breaths').value);
+    bw._t = setInterval(() => {
+      bw.breath++; audio.breath();
+      if (bw.breath >= breaths) {
+        clearInterval(bw._t);
+        bw.phase = 'hold'; bw.holdSec = 0;
+        bw._t = setInterval(() => { bw.holdSec++; renderBw(); }, 1000);
+        audio.bell();
+      }
+      renderBw();
+    }, 1800);
+  } else {
+    bw.phase = 'idle';
+    const best = Math.max(...bw.holds);
+    S.update(s => {
+      const d = ensureDay(s);
+      d.breathwork = { rounds: bw.round, breaths: Number($('#bw-breaths').value), holds: bw.holds, best };
+      s.breathwork.push({ date: today(), rounds: bw.round, breaths: Number($('#bw-breaths').value), holds: bw.holds, best });
+    });
+    toast(`Breathwork saved · best hold ${best}s.`);
+    renderMorning();
+  }
+  renderBw();
+});
+$('#bw-reset').addEventListener('click', bwReset);
+
+/* ───────── Boxing timer ───────── */
+const box = { phase: 'idle', round: 0, totalRounds: 0, remaining: 0, _t: null, paused: false };
+function renderBoxTimer() {
+  if (box.phase === 'idle') { $('#box-timer').textContent = '00:00'; $('#box-meta').textContent = 'Round 0 / 0 · idle'; return; }
+  $('#box-timer').textContent = fmtTime(box.remaining);
+  const phaseTxt = box.phase === 'round' ? 'Round' : 'Rest';
+  $('#box-meta').textContent = `${phaseTxt} ${box.round} / ${box.totalRounds}${box.paused ? ' · paused' : ''}`;
+  $('#box-meta').classList.toggle('warn', box.remaining <= 10 && box.phase !== 'idle');
+}
+function boxTick() {
+  if (box.paused) return;
+  box.remaining--;
+  if (box.remaining === 10) audio.warning();
+  if (box.remaining <= 0) {
+    audio.bell();
+    if (box.phase === 'round') {
+      if (box.round >= box.totalRounds) {
+        clearInterval(box._t); box.phase = 'idle';
+        toast(`Workout complete · ${box.totalRounds} rounds.`);
+        renderBoxTimer();
+        return;
+      }
+      box.phase = 'rest'; box.remaining = Number($('#box-rest-sec').value);
+    } else {
+      box.round++; box.phase = 'round'; box.remaining = Number($('#box-round-sec').value);
+    }
+  }
+  renderBoxTimer();
+}
+$('#box-start').addEventListener('click', () => {
+  if (box._t) clearInterval(box._t);
+  box.totalRounds = Number($('#box-rounds').value);
+  box.round = 1; box.phase = 'round'; box.remaining = Number($('#box-round-sec').value); box.paused = false;
+  audio.bell();
+  box._t = setInterval(boxTick, 1000);
+  renderBoxTimer();
+});
+$('#box-pause').addEventListener('click', () => { box.paused = !box.paused; renderBoxTimer(); });
+$('#box-reset').addEventListener('click', () => {
+  if (box._t) clearInterval(box._t);
+  box.phase = 'idle'; box.round = 0; box.remaining = 0;
+  renderBoxTimer();
+});
+$('#box-type').addEventListener('change', () => {
+  $('#spar-fields').style.display = $('#box-type').value === 'Sparring' ? 'block' : 'none';
+});
+$('#box-save').addEventListener('click', () => {
+  const isSpar = $('#box-type').value === 'Sparring';
+  const session = {
+    date: today(),
+    type: $('#box-type').value,
+    rounds: Number($('#box-completed').value) || 0,
+    exertion: Number($('#box-exertion').value) || 0,
+    focus: $('#box-focus').value,
+    resistance: Number($('#box-resist').value) || 0,
+  };
+  if (isSpar) {
+    session.partner = $('#box-partner').value;
+    session.exposed = $('#box-exposed').value;
+    session.drill = $('#box-drill').value;
+  }
+  S.update(s => {
+    const d = ensureDay(s);
+    d.boxing = session;
+    s.boxing.push(session);
+  });
+  $('#box-saved-summary').textContent = `Saved · ${session.rounds} rounds · exertion ${session.exertion}/10 · resistance ${session.resistance}/10`;
+  toast('Boxing saved.');
+});
+function renderWeekly() {
+  const s = S.read();
+  const tpl = s.settings.weeklyTemplate || WEEKLY_TEMPLATE_DEFAULT;
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  $('#weekly-template').innerHTML = days.map(d => `
+    <div class="sched-row">
+      <div style="color:var(--accent);font-family:'Cormorant Garamond',serif;font-size:1.05rem;">${d}</div>
+      <input type="text" data-weekday="${d}" value="${(tpl[d] || '').replace(/"/g, '&quot;')}">
+    </div>
+  `).join('');
+}
+$('#weekly-save').addEventListener('click', () => {
+  const tpl = {};
+  $$('#weekly-template input[type=text]').forEach(i => { tpl[i.dataset.weekday] = i.value; });
+  S.update(s => { s.settings.weeklyTemplate = tpl; });
+  toast('Weekly template saved.');
+});
+
+/* ───────── Tasks ───────── */
+function renderTasks() {
+  const s = S.read();
+  const t = today();
+  const arr = (s.tasks[t] || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0));
+  ['resistance', 'deepwork', 'maintenance'].forEach(tier => {
+    const list = $(`.task-list[data-tier="${tier}"]`);
+    list.innerHTML = '';
+    const tierTasks = arr.filter(x => x.tier === tier);
+    if (tier === 'resistance') {
+      $('#cap-resistance').textContent = `${tierTasks.length} / 3`;
+      $('#cap-resistance').style.color = tierTasks.length >= 3 ? 'var(--warn)' : 'var(--ink-faint)';
+    }
+    const activeDw = arr.find(x => x.tier === 'deepwork' && x.activeAt);
+    tierTasks.forEach(task => {
+      const row = document.createElement('div');
+      row.className = `task tier-${tier} ${task.done ? 'done' : ''}`;
+      if (tier === 'deepwork' && activeDw && activeDw.id !== task.id && !task.done) row.classList.add('locked');
+      if (tier === 'deepwork' && task.activeAt) row.classList.add('active-deepwork');
+      row.dataset.id = task.id;
+      row.draggable = true;
+      row.innerHTML = `
+        <input type="checkbox" ${task.done ? 'checked' : ''} data-act="done">
+        <input type="text" value="${(task.title || '').replace(/"/g, '&quot;')}" placeholder="${tier === 'deepwork' ? 'task title (90 min default)' : 'task title'}" data-act="title">
+        <input type="number" value="${task.estMin || ''}" placeholder="est" data-act="est">
+        <input type="number" value="${task.actMin || ''}" placeholder="act" data-act="act">
+        <span class="x" data-act="del">×</span>
+      `;
+      list.appendChild(row);
+      if (tier === 'deepwork') {
+        const startBtn = document.createElement('button');
+        startBtn.className = 'ghost';
+        startBtn.style.cssText = 'font-size:.78rem;padding:.25rem .5rem;margin-bottom:.35rem;';
+        startBtn.textContent = task.activeAt ? 'Stop · log time' : 'Start (ekāgratā)';
+        startBtn.addEventListener('click', () => toggleDeepWork(task.id));
+        list.appendChild(startBtn);
+      }
+      attachTaskHandlers(row);
+    });
+  });
+  const active = (s.tasks[t] || []).find(x => x.tier === 'deepwork' && x.activeAt);
+  $('#deepwork-active').textContent = active
+    ? `Active: "${active.title}" — locked to single-pointed. Other deep work tasks greyed out.`
+    : 'No deep work active. Single-task lock engages when you start one.';
+}
+function attachTaskHandlers(row) {
+  $$('input, span.x', row).forEach(el => {
+    const id = row.dataset.id;
+    const act = el.dataset.act;
+    if (!act) return;
+    const ev = el.tagName === 'SPAN' ? 'click' : (el.type === 'checkbox' ? 'change' : 'change');
+    el.addEventListener(ev, () => {
+      S.update(s => {
+        const arr = s.tasks[today()] || [];
+        const task = arr.find(x => x.id === id);
+        if (!task) return;
+        if (act === 'done') task.done = el.checked;
+        if (act === 'title') task.title = el.value;
+        if (act === 'est') task.estMin = Number(el.value) || null;
+        if (act === 'act') task.actMin = Number(el.value) || null;
+        if (act === 'del') s.tasks[today()] = arr.filter(x => x.id !== id);
+      });
+      if (act === 'del') renderTasks();
+      if (act === 'done') renderHome();
+    });
+  });
+  row.addEventListener('dragstart', () => row.classList.add('dragging'));
+  row.addEventListener('dragend', () => { row.classList.remove('dragging'); persistOrder(); });
+  row.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const dragging = $('.task.dragging');
+    if (!dragging || dragging === row || dragging.parentNode !== row.parentNode) return;
+    const rect = row.getBoundingClientRect();
+    const after = (e.clientY - rect.top) > rect.height / 2;
+    row.parentNode.insertBefore(dragging, after ? row.nextSibling : row);
+  });
+}
+function persistOrder() {
+  const t = today();
+  S.update(s => {
+    const arr = s.tasks[t] || [];
+    ['resistance', 'deepwork', 'maintenance'].forEach(tier => {
+      const els = $$(`.task-list[data-tier="${tier}"] .task`);
+      els.forEach((el, idx) => {
+        const task = arr.find(x => x.id === el.dataset.id);
+        if (task) task.order = idx;
+      });
+    });
+  });
+}
+$$('button[data-add]').forEach(b => {
+  b.addEventListener('click', () => {
+    const tier = b.dataset.add;
+    const t = today();
+    const s = S.read();
+    const existing = (s.tasks[t] || []).filter(x => x.tier === tier);
+    if (tier === 'resistance' && existing.length >= 3) { toast('Three is the cap. That is the rule.'); return; }
+    S.update(state => {
+      if (!state.tasks[t]) state.tasks[t] = [];
+      state.tasks[t].push({
+        id: uid(), title: '', tier,
+        estMin: tier === 'deepwork' ? 90 : null,
+        actMin: null, done: false, order: state.tasks[t].length,
+      });
+    });
+    renderTasks();
+  });
+});
+function toggleDeepWork(id) {
+  S.update(s => {
+    const arr = s.tasks[today()] || [];
+    const task = arr.find(x => x.id === id);
+    if (!task) return;
+    if (task.activeAt) {
+      const minutes = Math.round((Date.now() - new Date(task.activeAt).getTime()) / 60000);
+      task.actMin = (task.actMin || 0) + minutes;
+      task.activeAt = null;
+    } else {
+      arr.forEach(x => { if (x.tier === 'deepwork') x.activeAt = null; });
+      task.activeAt = new Date().toISOString();
+    }
+  });
+  renderTasks();
+}
+
+/* ───────── Schedule ───────── */
+function renderSchedule() {
+  const s = S.read();
+  const t = today();
+  const day = s.days[t] || {};
+  const blocks = day.schedule || defaultScheduleForToday();
+  const list = $('#schedule-list');
+  list.innerHTML = '';
+  blocks.forEach((blk, idx) => {
+    const row = document.createElement('div');
+    row.className = 'sched-row';
+    row.innerHTML = `
+      <input type="time" value="${blk[0]}">
+      <input type="text" value="${(blk[1] || '').replace(/"/g, '&quot;')}">
+      <input type="number" value="${blk[2] || 0}" min="0" placeholder="min">
+      <span class="x" style="color:var(--ink-faint);cursor:pointer;">×</span>
+    `;
+    const [tEl, txtEl, mEl, xEl] = row.children;
+    [tEl, txtEl, mEl].forEach(el => el.addEventListener('change', () => persistSchedule()));
+    xEl.addEventListener('click', () => { row.remove(); persistSchedule(); });
+    list.appendChild(row);
+  });
+  // saved templates
+  const tplWrap = $('#saved-templates');
+  const tpls = s.schedules || {};
+  if (!Object.keys(tpls).length) {
+    tplWrap.innerHTML = '<div class="hint">No saved templates yet.</div>';
+  } else {
+    tplWrap.innerHTML = Object.keys(tpls).map(name => `
+      <div class="sched-row">
+        <div style="color:var(--accent);font-family:'Cormorant Garamond',serif;">${name}</div>
+        <div class="hint" style="grid-column:span 1;">${tpls[name].length} blocks</div>
+        <button data-load-tpl="${name}" style="font-size:.78rem;padding:.25rem .5rem;">Load</button>
+        <span class="x" data-del-tpl="${name}" style="color:var(--ink-faint);cursor:pointer;">×</span>
+      </div>
+    `).join('');
+    $$('button[data-load-tpl]').forEach(b => b.addEventListener('click', () => loadTemplate(b.dataset.loadTpl)));
+    $$('span[data-del-tpl]').forEach(b => b.addEventListener('click', () => {
+      S.update(s => { delete s.schedules[b.dataset.delTpl]; });
+      renderSchedule();
+    }));
+  }
+}
+function defaultScheduleForToday() {
+  const d = new Date().getDay();
+  if (d === 6) return SCHEDULE_DEFAULTS.saturday;
+  if (d === 0) return SCHEDULE_DEFAULTS.sunday;
+  return SCHEDULE_DEFAULTS.weekday;
+}
+function readScheduleFromDom() {
+  return $$('#schedule-list .sched-row').map(row => {
+    const inputs = row.querySelectorAll('input');
+    return [inputs[0].value, inputs[1].value, Number(inputs[2].value) || 0];
+  });
+}
+function persistSchedule() {
+  const blocks = readScheduleFromDom();
+  S.update(s => { ensureDay(s).schedule = blocks; });
+}
+$('#sched-add').addEventListener('click', () => {
+  S.update(s => {
+    const d = ensureDay(s);
+    if (!d.schedule) d.schedule = defaultScheduleForToday().slice();
+    d.schedule.push(['12:00', 'New block', 30]);
+  });
+  renderSchedule();
+});
+$$('button[data-load-default]').forEach(b => b.addEventListener('click', () => {
+  const which = b.dataset.loadDefault;
+  S.update(s => { ensureDay(s).schedule = SCHEDULE_DEFAULTS[which].slice(); });
+  renderSchedule();
+}));
+$('#sched-save-template').addEventListener('click', () => {
+  const name = prompt('Template name?');
+  if (!name) return;
+  S.update(s => {
+    s.schedules = s.schedules || {};
+    s.schedules[name] = readScheduleFromDom();
+  });
+  renderSchedule();
+  toast(`Template "${name}" saved.`);
+});
+function loadTemplate(name) {
+  S.update(s => { ensureDay(s).schedule = (s.schedules[name] || []).slice(); });
+  renderSchedule();
+  toast(`Loaded "${name}".`);
+}
+
+/* ───────── Svādhyāya ───────── */
+function renderSvadhyaya() {
+  const s = S.read();
+  const d = s.days[today()] || {};
+  const sv = d.svadhyaya || {};
+  $('#sv-q1').value = sv.q1 || '';
+  $('#sv-q2').value = sv.q2 || '';
+  $('#sv-q3').value = sv.q3 || '';
+  $('#sv-q4').value = sv.q4 || '';
+  $('#sv-date').textContent = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+  $('#sv-saved-meta').textContent = sv.savedAt ? `Saved ${new Date(sv.savedAt).toLocaleTimeString()}` : '';
+  const count = S.reflectionEntryCount();
+  const need = Math.max(0, 14 - count);
+  $('#sv-agent-hint').textContent = need
+    ? `${need} more day${need === 1 ? '' : 's'} of reviews before the agent has anything honest to say.`
+    : 'You have enough entries. The agent can be unlocked in Settings — if the flag is also enabled.';
+}
+function renderSvHistory() {
+  renderSvadhyaya();
+  const s = S.read();
+  const entries = Object.entries(s.days)
+    .filter(([_, d]) => d.svadhyaya)
+    .sort((a, b) => b[0].localeCompare(a[0]));
+  $('#sv-count').textContent = `${entries.length} entries`;
+  $('#sv-history').innerHTML = entries.map(([date, d]) => {
+    const sv = d.svadhyaya;
+    return `<div class="review-card">
+      <div class="date">${date}</div>
+      <div class="q">1 · resistance</div><div class="a">${escape(sv.q1)}</div>
+      <div class="q">2 · reaction</div><div class="a">${escape(sv.q2)}</div>
+      <div class="q">3 · training</div><div class="a">${escape(sv.q3)}</div>
+      <div class="q">4 · recurrence</div><div class="a">${escape(sv.q4)}</div>
+    </div>`;
+  }).join('') || '<div class="hint">No reviews yet.</div>';
+}
+function escape(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+$('#sv-save').addEventListener('click', () => {
+  S.update(s => {
+    const d = ensureDay(s);
+    d.svadhyaya = {
+      q1: $('#sv-q1').value, q2: $('#sv-q2').value,
+      q3: $('#sv-q3').value, q4: $('#sv-q4').value,
+      savedAt: new Date().toISOString(),
+    };
+  });
+  toast('Review saved.');
+  renderSvHistory();
+});
+
+/* ───────── Soft prompt at 19:30 ───────── */
+(function softPrompt() {
+  function check() {
+    const now = new Date();
+    const h = now.getHours(), m = now.getMinutes();
+    if (h === 19 && m >= 30 && m < 40) {
+      const flag = sessionStorage.getItem('svPrompted');
+      if (!flag) {
+        sessionStorage.setItem('svPrompted', '1');
+        toast('Svādhyāya · 19:30 — the day is reviewed.');
+      }
+    }
+  }
+  check();
+  setInterval(check, 60_000);
+})();
+
+/* ───────── Metrics ───────── */
+function lastNDays(n) {
+  const out = [];
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    out.push(d.toISOString().slice(0, 10));
+  }
+  return out;
+}
+function renderMetrics() {
+  const s = S.read();
+  const days30 = lastNDays(30);
+  const resistanceSeries = days30.map(date => {
+    const d = s.days[date]; if (!d) return null;
+    const vals = [];
+    if (d.run) vals.push(d.run.resistance);
+    if (d.boxing) vals.push(d.boxing.resistance);
+    const tasks = (s.tasks[date] || []).filter(x => x.tier === 'resistance' && x.done);
+    if (tasks.length) vals.push(Math.min(10, 5 + tasks.length));
+    return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+  });
+  const deepWorkSeries = days30.map(date => {
+    const tasks = (s.tasks[date] || []).filter(x => x.tier === 'deepwork');
+    return tasks.reduce((sum, t) => sum + (t.actMin || 0), 0);
+  });
+  const recurrenceSeries = days30.map(date => {
+    const d = s.days[date]; if (!d || !d.svadhyaya) return null;
+    const q4 = (d.svadhyaya.q4 || '').trim().toLowerCase();
+    if (q4.startsWith('y')) return 1;
+    if (q4.startsWith('n')) return 0;
+    return null;
+  });
+  const roundsSeries = days30.map(date => {
+    const d = s.days[date]; return d && d.boxing ? d.boxing.rounds : 0;
+  });
+
+  drawLineChart('chart-resistance', resistanceSeries, 0, 10);
+  drawBarChart('chart-deepwork', deepWorkSeries);
+  drawRecurrenceChart('chart-recurrence', recurrenceSeries);
+  drawBarChart('chart-rounds', roundsSeries);
+
+  $('#m-resistance-30').textContent = days30.reduce((sum, date) =>
+    sum + (s.tasks[date] || []).filter(t => t.tier === 'resistance' && t.done).length, 0);
+  $('#m-deepwork-30').textContent = (deepWorkSeries.reduce((a, b) => a + b, 0) / 60).toFixed(1);
+  $('#m-km-30').textContent = s.runs
+    .filter(r => days30.includes(r.date))
+    .reduce((sum, r) => sum + (r.distanceKm || 0), 0)
+    .toFixed(1);
+  $('#m-rounds-30').textContent = s.boxing
+    .filter(b => days30.includes(b.date))
+    .reduce((sum, b) => sum + (b.rounds || 0), 0);
+
+  const spars = s.boxing
+    .filter(b => b.type === 'Sparring' && b.exposed)
+    .sort((a, b) => b.date.localeCompare(a.date));
+  $('#sparring-timeline').innerHTML = spars.length
+    ? spars.map(sp => `<div class="review-card">
+        <div class="date">${sp.date} · ${sp.partner || 'partner'}</div>
+        <div class="q">Exposed</div><div class="a">${escape(sp.exposed)}</div>
+        <div class="q">Drilling</div><div class="a">${escape(sp.drill)}</div>
+      </div>`).join('')
+    : '<div class="hint">No sparring entries yet.</div>';
+
+  renderMonthly(s);
+}
+function drawLineChart(id, series, minY, maxY) {
+  const svg = $('#' + id); svg.innerHTML = '';
+  const W = 600, H = 140, padL = 28, padB = 18, padT = 8;
+  for (let g = 0; g <= 4; g++) {
+    const y = padT + (H - padT - padB) * (g / 4);
+    svg.insertAdjacentHTML('beforeend',
+      `<line class="chart-grid" x1="${padL}" x2="${W}" y1="${y}" y2="${y}" />`);
+  }
+  if (minY === undefined) {
+    const vals = series.filter(v => v != null);
+    minY = Math.min(...vals, 0); maxY = Math.max(...vals, 1);
+  }
+  const xStep = (W - padL) / (series.length - 1);
+  const yScale = (v) => padT + (H - padT - padB) * (1 - (v - minY) / (maxY - minY || 1));
+  const pts = series.map((v, i) => v == null ? null : `${padL + i * xStep},${yScale(v)}`).filter(Boolean).join(' ');
+  if (pts) {
+    svg.insertAdjacentHTML('beforeend', `<polyline class="chart-line" points="${pts}" />`);
+  }
+  svg.insertAdjacentHTML('beforeend',
+    `<text class="chart-axis" x="2" y="${padT + 4}">${maxY}</text>
+     <text class="chart-axis" x="2" y="${H - padB + 4}">${minY}</text>`);
+}
+function drawBarChart(id, series) {
+  const svg = $('#' + id); svg.innerHTML = '';
+  const W = 600, H = 140, padL = 28, padB = 18, padT = 8;
+  const maxY = Math.max(...series, 1);
+  for (let g = 0; g <= 4; g++) {
+    const y = padT + (H - padT - padB) * (g / 4);
+    svg.insertAdjacentHTML('beforeend',
+      `<line class="chart-grid" x1="${padL}" x2="${W}" y1="${y}" y2="${y}" />`);
+  }
+  const bw = (W - padL) / series.length - 2;
+  series.forEach((v, i) => {
+    const h = (H - padT - padB) * (v / maxY);
+    const x = padL + i * (bw + 2);
+    const y = H - padB - h;
+    svg.insertAdjacentHTML('beforeend', `<rect class="chart-bar" x="${x}" y="${y}" width="${bw}" height="${h}" />`);
+  });
+  svg.insertAdjacentHTML('beforeend',
+    `<text class="chart-axis" x="2" y="${padT + 4}">${maxY}</text>
+     <text class="chart-axis" x="2" y="${H - padB + 4}">0</text>`);
+}
+function drawRecurrenceChart(id, series) {
+  const svg = $('#' + id); svg.innerHTML = '';
+  const W = 600, H = 140, padL = 28, padB = 18, padT = 8;
+  const bw = (W - padL) / series.length - 2;
+  series.forEach((v, i) => {
+    const x = padL + i * (bw + 2);
+    if (v === null) {
+      svg.insertAdjacentHTML('beforeend', `<rect x="${x}" y="${padT}" width="${bw}" height="${H - padT - padB}" fill="var(--panel-2)" />`);
+    } else {
+      const color = v === 1 ? 'var(--good)' : 'var(--warn)';
+      svg.insertAdjacentHTML('beforeend', `<rect x="${x}" y="${padT}" width="${bw}" height="${H - padT - padB}" fill="${color}" opacity="0.7" />`);
+    }
+  });
+  svg.insertAdjacentHTML('beforeend',
+    `<text class="chart-axis" x="2" y="${padT + 4}">Yes / No</text>`);
+}
+function renderMonthly(s) {
+  const months = {};
+  Object.keys(s.days).forEach(date => {
+    const m = date.slice(0, 7);
+    if (!months[m]) months[m] = { resistance: 0, deepWork: 0, km: 0, rounds: 0, spar: 0 };
+    months[m].resistance += (s.tasks[date] || []).filter(t => t.tier === 'resistance' && t.done).length;
+    months[m].deepWork += (s.tasks[date] || []).filter(t => t.tier === 'deepwork').reduce((sum, t) => sum + (t.actMin || 0), 0);
+    const d = s.days[date];
+    if (d.run) months[m].km += d.run.distanceKm || 0;
+    if (d.boxing) months[m].rounds += d.boxing.rounds || 0;
+    if (d.boxing && d.boxing.type === 'Sparring') months[m].spar += 1;
+  });
+  const keys = Object.keys(months).sort().reverse().slice(0, 6);
+  $('#monthly-compound').innerHTML = keys.length
+    ? `<table style="width:100%;border-collapse:collapse;font-size:.9rem;">
+        <thead><tr style="color:var(--ink-dim);text-align:left;">
+          <th style="padding:.4rem;">Month</th><th>Resistance</th><th>DW hours</th><th>Km</th><th>Rounds</th><th>Sparring</th>
+        </tr></thead>
+        <tbody>${keys.map(m => `<tr style="border-top:1px solid var(--line);">
+          <td style="padding:.4rem;color:var(--accent);font-family:'Cormorant Garamond',serif;font-size:1.05rem;">${m}</td>
+          <td>${months[m].resistance}</td>
+          <td>${(months[m].deepWork / 60).toFixed(1)}</td>
+          <td>${months[m].km.toFixed(1)}</td>
+          <td>${months[m].rounds}</td>
+          <td>${months[m].spar}</td>
+        </tr>`).join('')}</tbody></table>`
+    : '<div class="hint">No monthly data yet.</div>';
+}
+
+/* ───────── Settings ───────── */
+async function renderSettings() {
+  const s = S.read();
+  $('#api-key').value = s.settings.apiKey || '';
+  $('#research-toggle').checked = !!s.settings.researchEnabled;
+  $('#light-toggle').checked = !!s.settings.lightMode;
+  document.documentElement.classList.toggle('light', !!s.settings.lightMode);
+
+  // Pull config.json (if present) for the unlock countdown.
+  let cfg = { agent_enabled: false, agent_unlock_date: null };
+  try {
+    const r = await fetch('config.json', { cache: 'no-cache' });
+    if (r.ok) cfg = await r.json();
+  } catch (_) {}
+
+  const firstEntryDays = (() => {
+    const dates = Object.keys(s.days).sort();
+    if (!dates.length) return null;
+    const first = new Date(dates[0]);
+    return Math.floor((Date.now() - first.getTime()) / 86400000);
+  })();
+  const entries = S.reflectionEntryCount();
+  const daysRemaining = firstEntryDays === null ? 14 : Math.max(0, 14 - firstEntryDays);
+  const entriesRemaining = Math.max(0, 14 - entries);
+
+  const flagOk = cfg.agent_enabled === true;
+  const daysOk = entries >= 14;
+
+  $('#pill-flag').textContent = flagOk ? 'flag: on' : 'flag: off';
+  $('#pill-flag').classList.toggle('on', flagOk);
+  $('#pill-flag').classList.toggle('warn', !flagOk);
+  $('#pill-days').textContent = daysOk ? 'days: ≥14' : `days: ${entries}/14`;
+  $('#pill-days').classList.toggle('on', daysOk);
+  $('#pill-days').classList.toggle('warn', !daysOk);
+
+  $('#unlock-status').innerHTML = flagOk && daysOk
+    ? `<strong style="color:var(--good);">Agent unlocked.</strong>
+       Open <a href="agent.html" style="color:var(--accent);">agent.html</a> when you are ready.`
+    : `<strong style="color:var(--warn);">Locked.</strong>
+       ${entriesRemaining > 0
+         ? `${entriesRemaining} more svādhyāya entr${entriesRemaining === 1 ? 'y' : 'ies'} required.`
+         : 'You have enough entries — set <code>agent_enabled: true</code> in <code>config.json</code> to flip the flag.'}
+       ${firstEntryDays !== null ? `<br><span class="hint">First entry was ${firstEntryDays} day${firstEntryDays === 1 ? '' : 's'} ago.</span>` : ''}`;
+}
+$('#api-save').addEventListener('click', () => {
+  const key = $('#api-key').value.trim();
+  S.update(s => { s.settings.apiKey = key; });
+  toast('API key saved locally.');
+});
+$('#api-clear').addEventListener('click', () => {
+  $('#api-key').value = '';
+  S.update(s => { s.settings.apiKey = ''; });
+  toast('API key cleared.');
+});
+$('#research-toggle').addEventListener('change', () => {
+  S.update(s => { s.settings.researchEnabled = $('#research-toggle').checked; });
+});
+$('#light-toggle').addEventListener('change', () => {
+  const on = $('#light-toggle').checked;
+  S.update(s => { s.settings.lightMode = on; });
+  document.documentElement.classList.toggle('light', on);
+});
+$('#export-json').addEventListener('click', () => {
+  const blob = new Blob([S.exportJson()], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `sadhana-${today()}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+});
+$('#import-json').addEventListener('click', () => $('#import-file').click());
+$('#import-file').addEventListener('change', (e) => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try { S.importJson(reader.result); toast('Import successful.'); location.reload(); }
+    catch (err) { toast('Import failed: ' + err.message); }
+  };
+  reader.readAsText(file);
+});
+
+/* ───────── Boot ───────── */
+function boot() {
+  const s = S.read();
+  if (s.settings.lightMode) document.documentElement.classList.add('light');
+  renderHome();
+  renderTasks();
+  renderSchedule();
+  renderSvadhyaya();
+  renderWeekly();
+}
+boot();
+</script>
+</body>
+</html>

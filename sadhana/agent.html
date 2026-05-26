@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Sādhanā — Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0f;
+    --panel: #161617;
+    --panel-2: #1c1c1d;
+    --line: #26262a;
+    --ink: #e9e6df;
+    --ink-dim: #8d8a83;
+    --ink-faint: #5a5853;
+    --accent: #c9a96a;
+    --accent-dim: #6e5d40;
+    --warn: #b87060;
+    --good: #7a9a78;
+    --shadow: 0 1px 0 rgba(255,255,255,0.02), 0 8px 24px rgba(0,0,0,0.35);
+  }
+  html.light {
+    --bg: #f4f1ea;
+    --panel: #fbfaf5;
+    --panel-2: #ede9df;
+    --line: #d8d2c4;
+    --ink: #2a2823;
+    --ink-dim: #6b675e;
+    --ink-faint: #9a958a;
+    --accent: #8a6a2e;
+    --accent-dim: #b89860;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, sans-serif; }
+  h1, h2, h3, .serif { font-family: 'Cormorant Garamond', serif; font-weight: 500; letter-spacing: .01em; }
+  h1 { font-size: 2.4rem; margin: 0 0 .25rem 0; }
+  h2 { font-size: 1.6rem; margin: 0 0 .5rem 0; }
+  h3 { font-size: 1.15rem; margin: 0 0 .5rem 0; }
+  .sanskrit { font-style: italic; color: var(--accent); }
+  .sub { color: var(--ink-dim); font-size: .82rem; letter-spacing: .12em; text-transform: uppercase; }
+
+  header.top {
+    padding: 1.25rem 2.5rem;
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: baseline; gap: 1.5rem;
+    background: var(--panel);
+  }
+  header.top .brand { font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; }
+  header.top a { color: var(--ink-dim); text-decoration: none; font-size: .92rem; }
+  header.top a:hover { color: var(--accent); }
+  header.top .right { margin-left: auto; color: var(--ink-faint); font-size: .82rem; }
+  header.top .right .pill {
+    display: inline-block; padding: 2px 8px;
+    border: 1px solid var(--line); border-radius: 999px;
+    font-size: .72rem; letter-spacing: .08em; margin-left: .35rem;
+  }
+  header.top .right .pill.on { color: var(--accent); border-color: var(--accent-dim); }
+  header.top .right .pill.warn { color: var(--warn); border-color: var(--warn); }
+
+  main { padding: 2rem 2.5rem 4rem 2.5rem; max-width: 980px; margin: 0 auto; }
+  @media (max-width: 900px) { main { padding: 1.25rem; } header.top { padding: 1rem 1.25rem; flex-wrap: wrap; } }
+
+  .panel {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 1.25rem 1.4rem; margin-bottom: 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .panel header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: .9rem; }
+
+  button, .btn {
+    background: var(--panel-2); color: var(--ink); border: 1px solid var(--line);
+    padding: .55rem .9rem; border-radius: 4px; font-family: inherit; font-size: .9rem;
+    cursor: pointer; transition: all .15s ease;
+  }
+  button:hover { border-color: var(--accent-dim); color: var(--accent); }
+  button.primary { background: var(--accent); color: #0e0e0f; border-color: var(--accent); }
+  button.primary:hover { background: var(--accent-dim); color: #fff; }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-row { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .hint { color: var(--ink-faint); font-size: .82rem; line-height: 1.5; }
+  .divider { height: 1px; background: var(--line); margin: 1rem 0; }
+
+  .gate {
+    background: var(--panel);
+    border: 1px solid var(--warn);
+    border-radius: 6px;
+    padding: 2rem 2.4rem;
+    max-width: 720px;
+    margin: 4rem auto;
+    text-align: center;
+  }
+  .gate h1 { color: var(--warn); }
+  .gate .quote { font-style: italic; font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: var(--ink-dim); margin: 1.2rem 0; }
+
+  .reflection {
+    background: var(--panel-2);
+    border-left: 2px solid var(--accent);
+    padding: 1.1rem 1.4rem;
+    margin: 1rem 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    color: var(--ink);
+  }
+  .reflection .meta { font-family: 'Inter', sans-serif; font-size: .72rem; color: var(--ink-faint); margin-top: .75rem; letter-spacing: .1em; text-transform: uppercase; }
+
+  .draft-block {
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 4px; padding: .8rem 1rem; margin-bottom: .5rem;
+  }
+  .draft-block .lbl { color: var(--ink-dim); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; }
+  .draft-block input { width: 100%; background: transparent; border: none; color: var(--ink); font-size: 1rem; font-family: inherit; padding: .25rem 0; }
+  .draft-block input:focus { outline: 1px solid var(--accent-dim); }
+
+  .research-card {
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 4px; padding: 1rem 1.2rem; margin-bottom: .75rem;
+  }
+  .research-card.unreviewed { border-left: 2px solid var(--warn); }
+  .research-card.reviewed { border-left: 2px solid var(--good); }
+  .research-card .theme { color: var(--accent); font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; }
+  .research-card .src { color: var(--ink-dim); font-size: .78rem; }
+  .research-card .body { color: var(--ink); white-space: pre-wrap; margin: .5rem 0; font-size: .95rem; line-height: 1.55; }
+  .research-card .actions { display: flex; gap: .5rem; margin-top: .5rem; }
+
+  .log-entry { color: var(--ink-faint); font-size: .78rem; font-family: 'Menlo', monospace; padding: .15rem 0; }
+
+  .spinner {
+    display: inline-block; width: 12px; height: 12px;
+    border: 2px solid var(--ink-faint); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+    vertical-align: middle; margin-right: .4rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">Sādhanā <span class="sanskrit">· Darpaṇa</span></div>
+  <a href="index.html">← Planner</a>
+  <div class="right">
+    <span id="status-flag" class="pill warn">flag: ?</span>
+    <span id="status-days" class="pill warn">days: ?</span>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<script src="lib/storage.js"></script>
+<script src="lib/claude.js"></script>
+<script src="lib/research.js"></script>
+<script>
+'use strict';
+
+const S = window.SadhanaStorage;
+const C = window.SadhanaClaude;
+const R = window.SadhanaResearch;
+
+const $ = (s, r = document) => r.querySelector(s);
+
+function escape(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+async function loadConfig() {
+  try {
+    const r = await fetch('config.json', { cache: 'no-cache' });
+    if (r.ok) return await r.json();
+  } catch (_) {}
+  return { agent_enabled: false, agent_unlock_date: null };
+}
+
+async function checkGate() {
+  const cfg = await loadConfig();
+  const entries = S.reflectionEntryCount();
+  return {
+    cfg,
+    entries,
+    flagOk: cfg.agent_enabled === true,
+    daysOk: entries >= 14,
+    unlocked: cfg.agent_enabled === true && entries >= 14,
+  };
+}
+
+function setGateStatus({ flagOk, daysOk, entries }) {
+  const f = $('#status-flag');
+  f.textContent = flagOk ? 'flag: on' : 'flag: off';
+  f.className = 'pill ' + (flagOk ? 'on' : 'warn');
+  const d = $('#status-days');
+  d.textContent = daysOk ? 'days: ≥14' : `days: ${entries}/14`;
+  d.className = 'pill ' + (daysOk ? 'on' : 'warn');
+}
+
+function gatedView(state) {
+  const reason = !state.flagOk && !state.daysOk
+    ? `<p><strong>Both gates closed.</strong></p>
+       <p>You have <strong>${state.entries}</strong> svādhyāya ${state.entries === 1 ? 'entry' : 'entries'}.
+       The 14-day floor is the practice, not the configuration. Run Stage 1 until ${14 - state.entries} more reviews are written.</p>
+       <p>Then open <code>config.json</code> and set <code>"agent_enabled": true</code>.</p>`
+    : !state.flagOk
+      ? `<p><strong>Flag is off.</strong></p>
+         <p>You have ${state.entries} entries — enough for the agent to listen.
+         Open <code>config.json</code> and set <code>"agent_enabled": true</code>.</p>`
+      : `<p><strong>Not enough entries.</strong></p>
+         <p>You have ${state.entries} svādhyāya entries. The agent needs <strong>${14 - state.entries}</strong> more.
+         This is the floor. The agent has nothing honest to say about a life it has not yet watched you live.</p>`;
+  return `
+    <div class="gate">
+      <h1>Locked</h1>
+      <div class="quote">“Abhyāsa-vairāgyābhyāṃ tan-nirodhaḥ.” — practice, and letting go of its fruits.</div>
+      ${reason}
+      <div class="btn-row" style="justify-content:center;margin-top:1.25rem;">
+        <a href="index.html" class="btn">Return to the planner</a>
+      </div>
+    </div>
+  `;
+}
+
+function unlockedView() {
+  return `
+    <h1>Darpaṇa <span class="sanskrit">· The Mirror</span></h1>
+    <p class="hint">The agent reads your last 30 days. It does not flatter. It ends with one specific question — that is the only output that matters tomorrow.</p>
+
+    <div class="panel" id="panel-reflector">
+      <header><h2>Reflect with depth <span class="sanskrit">· Stage 2</span></h2><span class="sub" id="reflector-meta"></span></header>
+      <div id="today-review-status" class="hint"></div>
+      <div class="btn-row" style="margin-top:.75rem;">
+        <button id="btn-reflect" class="primary">Reflect with depth</button>
+      </div>
+      <div id="reflector-out"></div>
+    </div>
+
+    <div class="panel" id="panel-planner">
+      <header><h2>Draft tomorrow <span class="sanskrit">· Stage 3</span></h2><span class="sub">grounded in your patterns</span></header>
+      <div class="hint">Pulls completion rates, average actual vs. estimated minutes, boxing weekly template. Proposes three resistance tasks and four deep work blocks. Never auto-commits.</div>
+      <div class="btn-row" style="margin-top:.75rem;">
+        <button id="btn-draft" class="primary">Draft tomorrow</button>
+      </div>
+      <div id="draft-out"></div>
+    </div>
+
+    <div class="panel" id="panel-research">
+      <header><h2>Supplementary research <span class="sanskrit">· Stage 4</span></h2>
+        <span class="sub" id="research-cap"></span>
+      </header>
+      <div id="research-gate"></div>
+      <div id="research-log"></div>
+    </div>
+
+    <div class="panel">
+      <header><h2>Commonplace book</h2><span class="sub">passages you have reviewed and kept</span></header>
+      <div id="commonplace"></div>
+    </div>
+
+    <div class="panel">
+      <header><h2>API call log</h2><span class="sub">local · token usage visible</span></header>
+      <div id="api-log"></div>
+    </div>
+  `;
+}
+
+/* ──── Gather 30-day rollup for the LLM ──── */
+function gather30Days() {
+  const s = S.read();
+  const days = [];
+  for (let i = 29; i >= 0; i--) {
+    const dt = new Date(); dt.setDate(dt.getDate() - i);
+    const iso = dt.toISOString().slice(0, 10);
+    const d = s.days[iso] || {};
+    const tasks = (s.tasks[iso] || []);
+    days.push({
+      date: iso,
+      wake: d.wake ? d.wake.isoTime.slice(11, 16) : null,
+      run: d.run || null,
+      breathwork: d.breathwork ? { best: d.breathwork.best, rounds: d.breathwork.rounds } : null,
+      boxing: d.boxing || null,
+      svadhyaya: d.svadhyaya || null,
+      resistance: tasks.filter(t => t.tier === 'resistance').map(t => ({ title: t.title, done: t.done })),
+      deepWork: tasks.filter(t => t.tier === 'deepwork').map(t => ({ title: t.title, estMin: t.estMin, actMin: t.actMin, done: t.done })),
+    });
+  }
+  return days;
+}
+
+/* ──── Stage 2 — Reflector ──── */
+async function runReflector() {
+  const out = $('#reflector-out');
+  out.innerHTML = `<div class="reflection"><span class="spinner"></span>Reading the last thirty days…</div>`;
+  try {
+    const ground = await C.loadGroundContext();
+    const system = C.reflectorSystem(ground);
+    const days = gather30Days();
+    const today = days[days.length - 1];
+    if (!today.svadhyaya || !(today.svadhyaya.q1 || today.svadhyaya.q4)) {
+      out.innerHTML = `<div class="hint" style="margin-top:.75rem;">No review written today yet. Tonight's entry is the seed for the reflection — write it first.</div>`;
+      return;
+    }
+    const user = [
+      `Date: ${today.date}`,
+      '',
+      "Today's svādhyāya:",
+      `1 (resistance) — ${today.svadhyaya.q1 || '(blank)'}`,
+      `2 (reaction)   — ${today.svadhyaya.q2 || '(blank)'}`,
+      `3 (training)   — ${today.svadhyaya.q3 || '(blank)'}`,
+      `4 (recurrence) — ${today.svadhyaya.q4 || '(blank)'}`,
+      '',
+      'Trailing 30 days (most recent first):',
+      JSON.stringify(days.slice().reverse(), null, 2),
+    ].join('\n');
+
+    const { text, raw } = await C.call({
+      system,
+      messages: [{ role: 'user', content: user }],
+      maxTokens: 1200,
+      temperature: 0.65,
+    });
+
+    const tokens = raw.usage ? `${raw.usage.input_tokens} in · ${raw.usage.output_tokens} out` : '';
+    out.innerHTML = `<div class="reflection">${escape(text)}<div class="meta">${C.MODEL} · ${tokens}</div></div>`;
+
+    S.update(s => {
+      s.reflections[today.date] = {
+        reflection: text, model: C.MODEL,
+        tokens: raw.usage || null, savedAt: new Date().toISOString(),
+      };
+    });
+    renderApiLog();
+  } catch (e) {
+    out.innerHTML = `<div class="hint" style="color:var(--warn);margin-top:.75rem;">Reflection failed: ${escape(e.message)}</div>`;
+  }
+}
+
+/* ──── Stage 3 — Tomorrow's draft ──── */
+async function runDraft() {
+  const out = $('#draft-out');
+  out.innerHTML = `<div class="reflection"><span class="spinner"></span>Reading completion patterns…</div>`;
+  try {
+    const ground = await C.loadGroundContext();
+    const system = C.plannerSystem(ground);
+    const s = S.read();
+    const days = gather30Days();
+
+    const dwTasks = days.flatMap(d => d.deepWork);
+    const dwCompletion = dwTasks.length ? dwTasks.filter(t => t.done).length / dwTasks.length : 0;
+    const dwAvgEst = avg(dwTasks.map(t => t.estMin).filter(Boolean));
+    const dwAvgAct = avg(dwTasks.map(t => t.actMin).filter(Boolean));
+    const rTasks = days.flatMap(d => d.resistance);
+    const rCompletion = rTasks.length ? rTasks.filter(t => t.done).length / rTasks.length : 0;
+
+    const today = new Date();
+    const tomorrow = new Date(today.getTime() + 86400000);
+    const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const tomorrowDay = dayNames[tomorrow.getDay()];
+
+    const user = [
+      `Today is ${today.toISOString().slice(0, 10)}. Plan for tomorrow ${tomorrow.toISOString().slice(0, 10)} (${tomorrowDay}).`,
+      '',
+      `Aggregates (30d):`,
+      `• Resistance task completion rate: ${(rCompletion * 100).toFixed(0)}%`,
+      `• Deep work task completion rate: ${(dwCompletion * 100).toFixed(0)}%`,
+      `• Deep work avg estimated minutes: ${dwAvgEst.toFixed(0)}`,
+      `• Deep work avg actual minutes: ${dwAvgAct.toFixed(0)}`,
+      `• Boxing weekly template: ${JSON.stringify(s.settings.weeklyTemplate || {})}`,
+      `• Tomorrow per template: ${(s.settings.weeklyTemplate || {})[tomorrowDay] || '(unset)'}`,
+      '',
+      'Last 30 days of resistance task titles and outcomes:',
+      JSON.stringify(rTasks, null, 2),
+      '',
+      'Last 30 days of deep work tasks:',
+      JSON.stringify(dwTasks, null, 2),
+      '',
+      "Today's svādhyāya (signal for tomorrow):",
+      JSON.stringify(days[days.length - 1].svadhyaya || null, null, 2),
+    ].join('\n');
+
+    const { text, raw } = await C.call({
+      system, messages: [{ role: 'user', content: user }],
+      maxTokens: 1500, temperature: 0.55,
+    });
+
+    let parsed;
+    try { parsed = JSON.parse(text); }
+    catch {
+      const m = text.match(/\{[\s\S]*\}/);
+      if (m) { try { parsed = JSON.parse(m[0]); } catch (_) {} }
+    }
+    if (!parsed) {
+      out.innerHTML = `<div class="reflection">Returned text was not valid JSON:\n\n${escape(text)}</div>`;
+      return;
+    }
+
+    const tomorrowIso = tomorrow.toISOString().slice(0, 10);
+    S.update(state => { state.drafts[tomorrowIso] = { proposal: parsed, raw: text, savedAt: new Date().toISOString() }; });
+
+    out.innerHTML = renderDraft(parsed, tomorrowIso, raw);
+    wireDraftActions(parsed, tomorrowIso);
+    renderApiLog();
+  } catch (e) {
+    out.innerHTML = `<div class="hint" style="color:var(--warn);margin-top:.75rem;">Draft failed: ${escape(e.message)}</div>`;
+  }
+}
+function avg(arr) { return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0; }
+
+function renderDraft(p, dateIso, raw) {
+  const r = p.resistance || [];
+  const dw = p.deepWork || [];
+  const adj = p.adjustments || [];
+  return `
+    <div style="margin-top:1rem;">
+      <h3>Resistance <span class="sanskrit">· max 3</span></h3>
+      ${r.map((t, i) => `
+        <div class="draft-block">
+          <div class="lbl">${i + 1}</div>
+          <input data-section="resistance" data-i="${i}" data-k="title" value="${escape(t.title)}">
+          <div class="hint" style="margin-top:.25rem;">${escape(t.why || '')}</div>
+        </div>`).join('')}
+      <h3 style="margin-top:1rem;">Deep work blocks</h3>
+      ${dw.map((b, i) => `
+        <div class="draft-block">
+          <div class="lbl">${escape(b.block || ('Block ' + (i+1)))} · ${b.minutes || 90} min</div>
+          <input data-section="deepWork" data-i="${i}" data-k="task" value="${escape(b.task)}">
+        </div>`).join('')}
+      <h3 style="margin-top:1rem;">Adjustments</h3>
+      ${adj.length ? adj.map(a => `<div class="hint" style="margin-bottom:.25rem;color:var(--ink);">• ${escape(a)}</div>`).join('') : '<div class="hint">No structural adjustments suggested.</div>'}
+      ${p.rationale ? `<div class="reflection" style="margin-top:1rem;">${escape(p.rationale)}<div class="meta">${C.MODEL} · ${raw.usage ? raw.usage.input_tokens + ' in · ' + raw.usage.output_tokens + ' out' : ''}</div></div>` : ''}
+      <div class="btn-row" style="margin-top:1rem;">
+        <button id="draft-accept" class="primary">Accept · write into ${dateIso}</button>
+        <button id="draft-reject">Reject</button>
+      </div>
+    </div>
+  `;
+}
+function wireDraftActions(parsed, dateIso) {
+  document.querySelectorAll('[data-section]').forEach(inp => {
+    inp.addEventListener('change', () => {
+      const sec = inp.dataset.section, i = Number(inp.dataset.i), k = inp.dataset.k;
+      parsed[sec][i][k] = inp.value;
+    });
+  });
+  $('#draft-accept').addEventListener('click', () => {
+    S.update(s => {
+      s.tasks[dateIso] = s.tasks[dateIso] || [];
+      (parsed.resistance || []).forEach((t, i) => {
+        s.tasks[dateIso].push({
+          id: 'r' + Date.now() + i, title: t.title || '', tier: 'resistance',
+          estMin: 60, actMin: null, done: false, order: s.tasks[dateIso].length,
+        });
+      });
+      (parsed.deepWork || []).forEach((b, i) => {
+        s.tasks[dateIso].push({
+          id: 'dw' + Date.now() + i, title: b.task || '', tier: 'deepwork',
+          estMin: b.minutes || 90, actMin: null, done: false, order: s.tasks[dateIso].length,
+        });
+      });
+    });
+    $('#draft-out').innerHTML = `<div class="reflection">Accepted. Tomorrow's plan written into ${dateIso}.</div>`;
+  });
+  $('#draft-reject').addEventListener('click', () => {
+    S.update(s => { delete s.drafts[dateIso]; });
+    $('#draft-out').innerHTML = `<div class="hint">Rejected. Draft discarded.</div>`;
+  });
+}
+
+/* ──── Stage 4 — Research ──── */
+function renderResearchGate() {
+  const s = S.read();
+  const enabled = !!s.settings.researchEnabled;
+  const cap = R.canQuery();
+  $('#research-cap').textContent = enabled ? `${R.weekCount()} / 5 queries this week` : 'disabled';
+
+  const gate = $('#research-gate');
+  if (!enabled) {
+    gate.innerHTML = `
+      <div class="hint">
+        Stage 4 is the riskiest layer. It is off by default. Enable it in
+        <a href="index.html#" onclick="location.href='index.html';return false;" style="color:var(--accent);">Settings → Stage 4</a>
+        only if you want supplementary passages from the whitelist (PubMed, Sacred-texts, Wisdomlib, SEP).
+        Capped at five queries per week.
+      </div>
+    `;
+    return;
+  }
+  gate.innerHTML = `
+    <div class="hint">
+      Identifies your three most-recurring themes from the last 30 days of svādhyāya,
+      then pulls a supplementary passage per theme from the whitelist. Each entry lands
+      in "Supplementary, unverified by you" until you mark it Reviewed.
+    </div>
+    <div class="btn-row" style="margin-top:.75rem;">
+      <button id="btn-research" class="primary" ${cap ? '' : 'disabled'}>${cap ? 'Run weekly research' : 'Weekly cap reached'}</button>
+    </div>
+  `;
+  if (cap) $('#btn-research').addEventListener('click', runResearch);
+}
+async function runResearch() {
+  const gate = $('#research-gate');
+  gate.insertAdjacentHTML('beforeend', `<div class="reflection" id="research-running"><span class="spinner"></span>Extracting themes and gathering passages…</div>`);
+  try {
+    await R.runWeekly();
+  } catch (e) {
+    $('#research-running').innerHTML = `<span style="color:var(--warn);">${escape(e.message)}</span>`;
+    return;
+  }
+  $('#research-running').remove();
+  renderResearchLog();
+  renderResearchGate();
+  renderApiLog();
+}
+function renderResearchLog() {
+  const s = S.read();
+  const log = (s.research.log || []).slice().reverse();
+  const wrap = $('#research-log');
+  if (!log.length) { wrap.innerHTML = '<div class="hint" style="margin-top:1rem;">No research entries yet.</div>'; return; }
+  wrap.innerHTML = log.map((e, idx) => `
+    <div class="research-card ${e.reviewed ? 'reviewed' : 'unreviewed'}">
+      <div class="theme">${escape(e.theme)}</div>
+      <div class="src">${escape(e.source)} · ${e.url ? `<a href="${e.url}" target="_blank" rel="noopener" style="color:var(--accent);">verify ↗</a>` : ''} · ${(e.date || '').slice(0, 10)}</div>
+      <div class="body">${escape(e.summary)}</div>
+      <div class="actions">
+        ${!e.reviewed ? `<button data-idx="${idx}" data-act="review">Mark reviewed</button>` : '<span class="hint">Reviewed.</span>'}
+        ${e.reviewed ? `<button data-idx="${idx}" data-act="save">Save to commonplace</button>` : ''}
+        <button data-idx="${idx}" data-act="del">Delete</button>
+      </div>
+    </div>
+  `).join('');
+  wrap.querySelectorAll('button[data-act]').forEach(b => {
+    b.addEventListener('click', () => {
+      const idx = Number(b.dataset.idx);
+      const act = b.dataset.act;
+      const log = (S.read().research.log || []).slice().reverse();
+      const entry = log[idx];
+      S.update(s => {
+        const arr = s.research.log;
+        const i = arr.findIndex(x => x.date === entry.date && x.theme === entry.theme);
+        if (i === -1) return;
+        if (act === 'review') arr[i].reviewed = true;
+        if (act === 'del') arr.splice(i, 1);
+        if (act === 'save') s.research.commonplace.push({ ...arr[i], savedAt: new Date().toISOString() });
+      });
+      renderResearchLog();
+      renderCommonplace();
+    });
+  });
+}
+function renderCommonplace() {
+  const s = S.read();
+  const cp = (s.research.commonplace || []).slice().reverse();
+  $('#commonplace').innerHTML = cp.length
+    ? cp.map(e => `<div class="research-card reviewed">
+        <div class="theme">${escape(e.theme)}</div>
+        <div class="src">${escape(e.source)} · ${e.url ? `<a href="${e.url}" target="_blank" rel="noopener" style="color:var(--accent);">source ↗</a>` : ''}</div>
+        <div class="body">${escape(e.summary)}</div>
+      </div>`).join('')
+    : '<div class="hint">Empty. Passages you keep land here.</div>';
+}
+
+/* ──── API log ──── */
+function renderApiLog() {
+  const s = S.read();
+  const log = (s.research.apiLog || []).slice().reverse().slice(0, 50);
+  $('#api-log').innerHTML = log.length
+    ? log.map(e => `<div class="log-entry">${e.ts.slice(0, 19).replace('T', ' ')} · ${e.endpoint} · ${e.model || ''} · ${e.tokensIn || '?'} in / ${e.tokensOut || '?'} out</div>`).join('')
+    : '<div class="hint">No API calls yet.</div>';
+}
+
+/* ──── Today's review readiness ──── */
+function renderTodayReviewStatus() {
+  const s = S.read();
+  const t = S.today();
+  const sv = s.days[t] && s.days[t].svadhyaya;
+  const stored = s.reflections[t];
+  const filled = sv && (sv.q1 || sv.q2 || sv.q3 || sv.q4);
+  $('#today-review-status').innerHTML = filled
+    ? `Today's review is written.${stored ? ' A reflection has already been generated.' : ''}`
+    : `<strong style="color:var(--warn);">Today's review is empty.</strong> Write it first — the reflection has nothing to reflect on otherwise.`;
+  if (stored) {
+    $('#reflector-out').innerHTML = `<div class="reflection">${escape(stored.reflection)}<div class="meta">${stored.model} · saved ${stored.savedAt.slice(0, 19).replace('T', ' ')}</div></div>`;
+  }
+}
+
+/* ──── Boot ──── */
+(async function boot() {
+  const s = S.read();
+  if (s.settings.lightMode) document.documentElement.classList.add('light');
+
+  const gate = await checkGate();
+  setGateStatus(gate);
+
+  const main = $('#main');
+  if (!gate.unlocked) {
+    main.innerHTML = gatedView(gate);
+    return;
+  }
+  main.innerHTML = unlockedView();
+
+  renderTodayReviewStatus();
+  renderResearchGate();
+  renderResearchLog();
+  renderCommonplace();
+  renderApiLog();
+
+  $('#btn-reflect').addEventListener('click', runReflector);
+  $('#btn-draft').addEventListener('click', runDraft);
+})();
+</script>
+</body>
+</html>
