@@ -1102,7 +1102,7 @@ function attachTaskHandlers(row) {
         if (act === 'del') s.tasks[today()] = arr.filter(x => x.id !== id);
       });
       if (act === 'del') renderTasks();
-      if (act === 'done') renderHome();
+      if (act === 'done') { renderTasks(); renderHome(); }
     });
   });
   row.addEventListener('dragstart', () => row.classList.add('dragging'));
