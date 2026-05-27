@@ -136,11 +136,23 @@
     vertical-align: middle; margin-right: .4rem;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  [data-term] { cursor: help; }
+  #tooltip-floater {
+    position: fixed; display: none;
+    background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--accent-dim); border-radius: 4px;
+    padding: .5rem .75rem;
+    font-family: 'Inter', sans-serif; font-size: .78rem; line-height: 1.45;
+    font-style: normal; max-width: 300px;
+    box-shadow: var(--shadow); pointer-events: none; z-index: 9999;
+  }
+  #tooltip-floater.show { display: block; }
 </style>
 </head>
 <body>
 <header class="top">
-  <div class="brand">Sādhanā <span class="sanskrit">· Darpaṇa</span></div>
+  <div class="brand"><span data-term="sādhanā">Sādhanā</span> <span class="sanskrit" data-term="darpaṇa">· Darpaṇa</span></div>
   <a href="index.html">← Planner</a>
   <div class="right">
     <span id="status-flag" class="pill warn">flag: ?</span>
@@ -151,6 +163,7 @@
 <main id="main"></main>
 
 <script src="lib/storage.js"></script>
+<script src="lib/lexicon.js"></script>
 <script src="lib/claude.js"></script>
 <script src="lib/research.js"></script>
 <script>
@@ -581,9 +594,38 @@ function renderTodayReviewStatus() {
 }
 
 /* ──── Boot ──── */
+function wireTooltips() {
+  if (!window.SadhanaLexicon) return;
+  let tip = document.getElementById('tooltip-floater');
+  if (!tip) { tip = document.createElement('div'); tip.id = 'tooltip-floater'; document.body.appendChild(tip); }
+  function show(el, text) {
+    tip.textContent = text;
+    tip.style.left = '-9999px'; tip.style.top = '-9999px';
+    tip.classList.add('show');
+    const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+    let x = r.left + r.width / 2 - w / 2, y = r.top - h - 8;
+    if (y < 4) y = r.bottom + 8;
+    if (x < 6) x = 6;
+    if (x + w > window.innerWidth - 6) x = window.innerWidth - w - 6;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  }
+  const hide = () => tip.classList.remove('show');
+  document.querySelectorAll('[data-term]').forEach(el => {
+    const entry = window.SadhanaLexicon.find(el.dataset.term);
+    if (!entry) return;
+    el.dataset.tooltip = entry.tooltip;
+    el.setAttribute('title', entry.tooltip);
+    el.addEventListener('mouseenter', () => show(el, entry.tooltip));
+    el.addEventListener('mouseleave', hide);
+  });
+  window.addEventListener('scroll', hide, true);
+  window.addEventListener('resize', hide);
+}
+
 (async function boot() {
   const s = S.read();
   if (s.settings.lightMode) document.documentElement.classList.add('light');
+  wireTooltips();
 
   const gate = await checkGate();
   setGateStatus(gate);

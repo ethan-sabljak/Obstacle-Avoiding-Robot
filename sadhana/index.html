@@ -282,23 +282,116 @@
     pointer-events: none;
   }
   .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* Sanskrit tooltip — JS-positioned floating element, immune to parent overflow */
+  [data-term] { cursor: help; }
+  #tooltip-floater {
+    position: fixed;
+    display: none;
+    background: var(--panel-2);
+    color: var(--ink);
+    border: 1px solid var(--accent-dim);
+    border-radius: 4px;
+    padding: .5rem .75rem;
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-size: .78rem;
+    line-height: 1.45;
+    letter-spacing: 0;
+    text-transform: none;
+    max-width: 300px;
+    box-shadow: var(--shadow);
+    pointer-events: none;
+    z-index: 9999;
+    white-space: normal;
+  }
+  #tooltip-floater.show { display: block; }
+
+  /* Lexicon */
+  .lex-search {
+    width: 100%; background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 4px;
+    padding: .65rem .8rem; font-family: inherit; font-size: .95rem;
+    margin-bottom: 1rem;
+  }
+  .lex-card {
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-left: 2px solid var(--accent-dim);
+    border-radius: 4px; padding: 1.1rem 1.3rem; margin-bottom: .75rem;
+  }
+  .lex-head { display: flex; align-items: baseline; gap: .8rem; flex-wrap: wrap; }
+  .lex-term {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.55rem; color: var(--accent);
+  }
+  .lex-deva { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; color: var(--ink-dim); }
+  .lex-root { font-style: italic; color: var(--ink-faint); font-size: .82rem; }
+  .lex-meta { color: var(--ink-dim); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; margin-top: .65rem; }
+  .lex-body { color: var(--ink); font-size: .95rem; line-height: 1.6; margin-top: .15rem; }
+  .lex-related { margin-top: .55rem; }
+  .lex-related a {
+    color: var(--accent); cursor: pointer; text-decoration: none;
+    font-size: .82rem; margin-right: .5rem; border-bottom: 1px dotted var(--accent-dim);
+  }
+  .lex-related a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .lex-card.focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+
+  /* Contemplation */
+  .con-card {
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 4px; padding: 1.4rem 1.6rem; margin-bottom: .9rem;
+  }
+  .con-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: 1.45rem; line-height: 1.5;
+    color: var(--ink); max-width: 720px;
+  }
+  .con-attr {
+    display: block; margin-top: .65rem;
+    color: var(--accent); font-family: 'Inter', sans-serif; font-style: normal;
+    font-size: .78rem; letter-spacing: .14em; text-transform: uppercase;
+  }
+  .con-trad { color: var(--ink-faint); margin-left: .6rem; letter-spacing: .12em; }
+  .con-expand {
+    background: transparent; border: none; color: var(--ink-faint);
+    font-size: .82rem; padding: .4rem 0; margin-top: .4rem; cursor: pointer;
+    border-bottom: 1px dotted var(--ink-faint);
+  }
+  .con-expand:hover { color: var(--accent); border-bottom-color: var(--accent-dim); }
+  .con-body { margin-top: 1rem; display: none; }
+  .con-card.open .con-body { display: block; }
+  .con-section { color: var(--ink-dim); font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; margin-top: .8rem; }
+  .con-paragraph { color: var(--ink); font-size: .95rem; line-height: 1.6; margin-top: .25rem; }
+  .con-prompts li { color: var(--ink); font-size: .95rem; line-height: 1.55; margin-bottom: .35rem; }
+
+  /* Section header for sub-nav */
+  nav.side .nav-section {
+    margin-top: 1.5rem; color: var(--ink-faint);
+    font-size: .68rem; letter-spacing: .22em; text-transform: uppercase;
+    padding: 0 .75rem;
+  }
 </style>
 </head>
 <body>
 <div class="app">
   <nav class="side">
-    <div class="brand">Sādhanā</div>
+    <div class="brand" data-term="sādhanā">Sādhanā</div>
     <div class="brand-sub">The Practice</div>
-    <a data-view="home" class="active"><span class="skt">Smṛti</span>Today</a>
-    <a data-view="morning"><span class="skt">Prātaḥ</span>Morning</a>
-    <a data-view="boxing"><span class="skt">Yuddha</span>Boxing</a>
-    <a data-view="tasks"><span class="skt">Tapas</span>Tasks</a>
-    <a data-view="schedule"><span class="skt">Kāla</span>Schedule</a>
-    <a data-view="svadhyaya"><span class="skt">Svādhyāya</span>Review</a>
-    <a data-view="metrics"><span class="skt">Saṃkhyā</span>Metrics</a>
-    <a data-view="settings"><span class="skt">Vidhi</span>Settings</a>
-    <div style="margin-top:2rem;color:var(--ink-faint);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;">Agent</div>
-    <a href="agent.html"><span class="skt">Darpaṇa</span>Reflect</a>
+    <div class="nav-section">Practice</div>
+    <a data-view="home" class="active"><span class="skt" data-term="smṛti">Smṛti</span>Today</a>
+    <a data-view="morning"><span class="skt" data-term="prātaḥ">Prātaḥ</span>Morning</a>
+    <a data-view="boxing"><span class="skt" data-term="yuddha">Yuddha</span>Boxing</a>
+    <a data-view="tasks"><span class="skt" data-term="tapas">Tapas</span>Tasks</a>
+    <a data-view="schedule"><span class="skt" data-term="kāla">Kāla</span>Schedule</a>
+    <a data-view="svadhyaya"><span class="skt" data-term="svādhyāya">Svādhyāya</span>Review</a>
+    <a data-view="metrics"><span class="skt" data-term="saṃkhyā">Saṃkhyā</span>Metrics</a>
+    <div class="nav-section">Ground</div>
+    <a data-view="lexicon"><span class="skt" data-term="śabda">Śabda</span>Lexicon</a>
+    <a data-view="contemplation"><span class="skt" data-term="manana">Manana</span>Contemplation</a>
+    <div class="nav-section">Config</div>
+    <a data-view="settings"><span class="skt" data-term="vidhi">Vidhi</span>Settings</a>
+    <div class="nav-section">Agent</div>
+    <a href="agent.html"><span class="skt" data-term="darpaṇa">Darpaṇa</span>Reflect</a>
   </nav>
 
   <main>
@@ -574,6 +667,30 @@
       </div>
     </section>
 
+    <!-- LEXICON -->
+    <section class="view" id="view-lexicon">
+      <h1>Śabda <span class="sanskrit">· Lexicon</span></h1>
+      <p class="hint">Every term used in the practice with its primary-source location and the working definition. Hover any italic term elsewhere in the app for the one-line version; come here for the full entry.</p>
+      <input type="text" class="lex-search" id="lex-search" placeholder="Search a term, root, or source…">
+      <div id="lex-list"></div>
+    </section>
+
+    <!-- CONTEMPLATION -->
+    <section class="view" id="view-contemplation">
+      <h1>Manana <span class="sanskrit">· Contemplation</span></h1>
+      <p class="hint">Passages held for contemplation, not decoration. Each one comes with the surrounding context, the reason it earned a place in the practice, and a small number of specific prompts to take into the day.</p>
+      <div class="panel" style="text-align:center;">
+        <header style="justify-content:center;"><h2>Draw a card <span class="sanskrit">· today</span></h2></header>
+        <div id="con-drawn"></div>
+        <div class="btn-row" style="justify-content:center;margin-top:.75rem;">
+          <button id="con-draw" class="primary">Draw at random</button>
+          <button id="con-daily">Today's rotation</button>
+        </div>
+      </div>
+      <h2 style="margin-top:1.5rem;">All contemplations</h2>
+      <div id="con-list"></div>
+    </section>
+
     <!-- SETTINGS -->
     <section class="view" id="view-settings">
       <h1>Vidhi <span class="sanskrit">· Settings</span></h1>
@@ -641,19 +758,14 @@
 <div class="toast" id="toast"></div>
 
 <script src="lib/storage.js"></script>
+<script src="lib/lexicon.js"></script>
+<script src="lib/contemplation.js"></script>
 <script>
 'use strict';
 
-/* ───────── Quotes ───────── */
-const QUOTES = [
-  ['You have a right to action alone, never to its fruits.', 'Gītā 2.47'],
-  ['Klaibyaṃ mā sma gamaḥ pārtha — yield not to unmanliness. Stand up.', 'Gītā 2.3'],
-  ['He who has a why to live can bear almost any how.', 'Nietzsche'],
-  ['One does not become enlightened by imagining figures of light, but by making the darkness conscious.', 'Jung'],
-  ['Abhyāsa-vairāgyābhyāṃ tan-nirodhaḥ.', 'Yoga Sūtra 1.12'],
-  ['Everybody has a plan until they get punched in the mouth.', 'Tyson'],
-  ['The cave you fear to enter holds the treasure you seek.', 'Campbell'],
-];
+/* ───────── Quotes (now sourced from contemplation.js) ───────── */
+const LEX = window.SadhanaLexicon;
+const CON = window.SadhanaContemplation;
 
 /* ───────── Schedule defaults ───────── */
 const SCHEDULE_DEFAULTS = {
@@ -755,14 +867,20 @@ function navigate(view) {
   if (view === 'boxing') renderWeekly();
   if (view === 'settings') renderSettings();
   if (view === 'morning') renderMorning();
+  if (view === 'lexicon') renderLexicon();
+  if (view === 'contemplation') renderContemplation();
 }
 $$('nav.side a[data-view]').forEach(a => a.addEventListener('click', () => navigate(a.dataset.view)));
 
 /* ───────── Home ───────── */
 function rotateQuote() {
-  const idx = Math.floor((Date.now() / (1000 * 60 * 60 * 6)) % QUOTES.length);
-  const [text, attr] = QUOTES[idx];
-  $('#rotating-quote').innerHTML = `“${text}”<span class="attr">— ${attr}</span>`;
+  const c = CON.byIndex(CON.dailyIndex());
+  $('#rotating-quote').innerHTML = `“${escape(c.text)}”<span class="attr">— ${escape(c.attr)}</span>`;
+  $('#rotating-quote').style.cursor = 'pointer';
+  $('#rotating-quote').onclick = () => {
+    navigate('contemplation');
+    setTimeout(() => focusContemplation(c.text), 50);
+  };
 }
 function renderHome() {
   rotateQuote();
@@ -1551,6 +1669,159 @@ $('#import-file').addEventListener('change', (e) => {
   reader.readAsText(file);
 });
 
+/* ───────── Lexicon (Śabda) ───────── */
+let lexFilter = '';
+function renderLexicon() {
+  const list = $('#lex-list');
+  const q = lexFilter.toLowerCase().trim();
+  const items = LEX.LEXICON.filter(e => {
+    if (!q) return true;
+    return [e.term, e.root, e.source, e.working].join(' ').toLowerCase().includes(q);
+  });
+  if (!items.length) { list.innerHTML = '<div class="hint">No entries match that.</div>'; return; }
+  list.innerHTML = items.map(e => lexCardHtml(e)).join('');
+  list.querySelectorAll('a[data-jump]').forEach(a =>
+    a.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      lexFilter = '';
+      $('#lex-search').value = '';
+      renderLexicon();
+      setTimeout(() => focusLexEntry(a.dataset.jump), 30);
+    }));
+}
+function lexCardHtml(e) {
+  const deva = e.devanagari ? `<span class="lex-deva">${escape(e.devanagari)}</span>` : '';
+  const related = (e.related || []).map(r =>
+    `<a data-jump="${escape(r)}">${escape(r)}</a>`).join('');
+  return `<div class="lex-card" data-entry="${escape(e.term)}">
+    <div class="lex-head">
+      <span class="lex-term">${escape(e.term)}</span>
+      ${deva}
+      <span class="lex-root">${escape(e.root)}</span>
+    </div>
+    <div class="lex-meta">Working</div>
+    <div class="lex-body">${escape(e.working)}</div>
+    <div class="lex-meta">Source</div>
+    <div class="lex-body">${escape(e.source)}</div>
+    <div class="lex-meta">In the practice</div>
+    <div class="lex-body">${escape(e.practice)}</div>
+    ${related ? `<div class="lex-related"><span class="lex-meta" style="display:inline;margin-right:.5rem;">Related</span>${related}</div>` : ''}
+  </div>`;
+}
+function focusLexEntry(term) {
+  const list = $('#lex-list');
+  if (!list) return;
+  const card = list.querySelector(`.lex-card[data-entry="${term}"]`);
+  if (!card) return;
+  list.querySelectorAll('.lex-card.focus').forEach(c => c.classList.remove('focus'));
+  card.classList.add('focus');
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => card.classList.remove('focus'), 2000);
+}
+
+/* ───────── Contemplation (Manana) ───────── */
+function renderContemplation() {
+  renderDrawnContemplation(CON.byIndex(CON.dailyIndex()));
+  const list = $('#con-list');
+  list.innerHTML = CON.CONTEMPLATIONS.map((c, i) => conCardHtml(c, i, false)).join('');
+  wireContemplationCards(list);
+}
+function conCardHtml(c, i, open) {
+  return `<div class="con-card ${open ? 'open' : ''}" data-i="${i}" data-text="${escape(c.text).slice(0, 60)}">
+    <div class="con-text">“${escape(c.text)}”
+      <span class="con-attr">${escape(c.attr)}<span class="con-trad">· ${escape(c.tradition)}</span></span>
+    </div>
+    <button class="con-expand">${open ? 'Hide' : 'Open'} the manana</button>
+    <div class="con-body">
+      <div class="con-section">Context</div>
+      <div class="con-paragraph">${escape(c.context)}</div>
+      <div class="con-section">Why it earned a place</div>
+      <div class="con-paragraph">${escape(c.why)}</div>
+      <div class="con-section">Prompts for the day</div>
+      <ul class="con-prompts">${(c.prompts || []).map(p => `<li>${escape(p)}</li>`).join('')}</ul>
+    </div>
+  </div>`;
+}
+function wireContemplationCards(root) {
+  root.querySelectorAll('.con-card').forEach(card => {
+    const btn = card.querySelector('.con-expand');
+    btn.addEventListener('click', () => {
+      const open = card.classList.toggle('open');
+      btn.textContent = open ? 'Hide the manana' : 'Open the manana';
+    });
+  });
+}
+function renderDrawnContemplation(c) {
+  const wrap = $('#con-drawn');
+  wrap.innerHTML = conCardHtml(c, -1, true);
+  wireContemplationCards(wrap);
+}
+function focusContemplation(text) {
+  const target = $('#con-list .con-card[data-text="' + escape(text).slice(0, 60) + '"]');
+  if (target) {
+    target.classList.add('open');
+    target.querySelector('.con-expand').textContent = 'Hide the manana';
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+/* ───────── Tooltip wiring on Sanskrit terms ───────── */
+function wireTooltips() {
+  let tip = document.getElementById('tooltip-floater');
+  if (!tip) {
+    tip = document.createElement('div');
+    tip.id = 'tooltip-floater';
+    document.body.appendChild(tip);
+  }
+  function position(el) {
+    const r = el.getBoundingClientRect();
+    tip.style.left = '-9999px';
+    tip.style.top = '-9999px';
+    tip.classList.add('show');
+    const w = tip.offsetWidth;
+    const h = tip.offsetHeight;
+    let x = r.left + r.width / 2 - w / 2;
+    let y = r.top - h - 8;
+    if (y < 4) y = r.bottom + 8;
+    if (x < 6) x = 6;
+    if (x + w > window.innerWidth - 6) x = window.innerWidth - w - 6;
+    tip.style.left = x + 'px';
+    tip.style.top = y + 'px';
+  }
+  function show(el, text) {
+    tip.textContent = text;
+    position(el);
+  }
+  function hide() { tip.classList.remove('show'); }
+
+  document.querySelectorAll('[data-term]').forEach(el => {
+    const term = el.dataset.term;
+    const entry = LEX.find(term);
+    if (!entry) return;
+    el.dataset.tooltip = entry.tooltip;        // testable + accessible
+    el.setAttribute('title', entry.tooltip);
+    el.addEventListener('mouseenter', () => show(el, entry.tooltip));
+    el.addEventListener('mouseleave', hide);
+    el.addEventListener('focus', () => show(el, entry.tooltip));
+    el.addEventListener('blur', hide);
+    el.addEventListener('click', (ev) => {
+      if (el.closest('a[data-view]') || el.closest('a[href]')) return;
+      ev.stopPropagation();
+      // First tap shows; second tap (while shown) navigates to the full entry.
+      if (tip.classList.contains('show') && tip.textContent === entry.tooltip) {
+        hide();
+        navigate('lexicon');
+        setTimeout(() => focusLexEntry(term), 50);
+      } else {
+        show(el, entry.tooltip);
+      }
+    });
+  });
+  document.addEventListener('click', hide);
+  window.addEventListener('scroll', hide, true);
+  window.addEventListener('resize', hide);
+}
+
 /* ───────── Boot ───────── */
 function boot() {
   const s = S.read();
@@ -1560,6 +1831,14 @@ function boot() {
   renderSchedule();
   renderSvadhyaya();
   renderWeekly();
+  wireTooltips();
+  // Lexicon search wiring (one-time)
+  $('#lex-search').addEventListener('input', (e) => {
+    lexFilter = e.target.value;
+    renderLexicon();
+  });
+  $('#con-draw').addEventListener('click', () => renderDrawnContemplation(CON.random()));
+  $('#con-daily').addEventListener('click', () => renderDrawnContemplation(CON.byIndex(CON.dailyIndex())));
 }
 boot();
 </script>

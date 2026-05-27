@@ -128,6 +128,23 @@ from Settings. Back it up.
 - **Metrics** — streaks, 30-day charts, monthly compound view, sparring
   "what got exposed" timeline.
 
+## Ground
+
+The planner also includes two reference views the user reads, not writes:
+
+- **Śabda · Lexicon** — every Sanskrit (and other) term used in the
+  practice, with etymology, primary-source citation, and the working
+  definition. Hover any italic term anywhere in the app to see the
+  one-line version; click through for the full entry. Tap on mobile.
+- **Manana · Contemplation** — twenty passages held for sustained
+  reflection. Each one comes with the surrounding context, why it earned
+  a place in the practice, and a small number of specific prompts to take
+  into the day. The home-page rotating quote is drawn from this set;
+  click it to jump to its card.
+
+The agent reads `context/philosophy.md` as its ground; the user reads it
+through these two views.
+
 ---
 
 ## What the agent does (when unlocked)
