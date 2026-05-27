@@ -136,6 +136,48 @@
     0%   { background-position: -200% center; }
     100% { background-position:  200% center; }
   }
+  @keyframes pulseGlow {
+    0%   { box-shadow: 0 0 0 0 rgba(212, 165, 116, 0.55); }
+    100% { box-shadow: 0 0 0 18px rgba(212, 165, 116, 0); }
+  }
+
+  /* AuDHD-friendly: respect reduced motion. The interface still works without the
+     dance — animations become instant snaps, breathing pauses still teach the breath. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    section.view.active { animation: none; opacity: 1; transform: none; filter: none; }
+    .quality-row.active { animation: none; }
+    .breath-circle { transition: transform 0.3s linear, box-shadow 0.3s linear; }
+  }
+
+  /* Persistent status strip — anchor for time-blindness. Always shows where you
+     are in the cycle without requiring navigation. */
+  .status-strip {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex; align-items: center; gap: 1rem;
+    padding: .55rem 1rem;
+    background: rgba(15, 14, 12, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+    font-size: .78rem; letter-spacing: .05em;
+    color: var(--ink-dim);
+  }
+  html.light .status-strip { background: rgba(245, 241, 232, 0.92); }
+  .status-strip .pill {
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: .15rem .55rem; border-radius: 12px;
+    border: 1px solid var(--line); background: var(--panel-2);
+  }
+  .status-strip .pill.active { color: var(--accent); border-color: var(--accent-dim); }
+  .status-strip .pill.warn { color: var(--warn); border-color: var(--warn); }
+  .status-strip .ssep { color: var(--ink-faint); }
 
   /* Panels */
   .panel {
@@ -418,7 +460,22 @@
     gap: .8rem; align-items: center;
     background: var(--panel-2); border: 1px solid var(--line);
     border-radius: 4px; padding: .7rem .9rem;
-    cursor: pointer; transition: border-color .15s, background .15s;
+    cursor: pointer;
+    transition: border-color .25s, background .25s, transform .35s ease, box-shadow .35s ease;
+    animation: fadeRise .55s cubic-bezier(.16,.84,.44,1) both;
+  }
+  .quality-row:nth-child(1) { animation-delay: 0.04s; }
+  .quality-row:nth-child(2) { animation-delay: 0.10s; }
+  .quality-row:nth-child(3) { animation-delay: 0.16s; }
+  .quality-row:nth-child(4) { animation-delay: 0.22s; }
+  .quality-row:nth-child(5) { animation-delay: 0.28s; }
+  .quality-row:nth-child(6) { animation-delay: 0.34s; }
+  .quality-row:nth-child(7) { animation-delay: 0.40s; }
+  .quality-row:nth-child(8) { animation-delay: 0.46s; }
+  .quality-row:nth-child(9) { animation-delay: 0.52s; }
+  .quality-row:hover {
+    transform: translateX(3px);
+    box-shadow: -3px 0 14px rgba(184, 152, 96, 0.12);
   }
   .quality-row:hover { border-color: var(--accent-dim); }
   .quality-row.active {
@@ -513,6 +570,57 @@
   .teacher-card .role { color: var(--accent); font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; margin-top: .2rem; }
   .teacher-card .contribution { color: var(--ink-dim); font-size: .88rem; line-height: 1.5; margin-top: .55rem; }
 
+  /* Guided sit — breathing circle */
+  .sit-stage {
+    position: relative;
+    width: 100%; min-height: 280px;
+    display: flex; align-items: center; justify-content: center;
+    background:
+      radial-gradient(circle at center, rgba(184, 152, 96, 0.05), transparent 65%);
+    border-radius: 8px;
+    margin: .5rem 0 1rem;
+    overflow: hidden;
+  }
+  .breath-circle {
+    width: 140px; height: 140px; border-radius: 50%;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(212, 165, 116, 0.45), rgba(184, 152, 96, 0.15) 70%, transparent);
+    box-shadow:
+      0 0 60px rgba(212, 165, 116, 0.25),
+      inset 0 0 30px rgba(212, 165, 116, 0.15);
+    transition: transform 1s cubic-bezier(.4,0,.2,1), box-shadow 1.2s ease;
+  }
+  .breath-circle.inhale {
+    transform: scale(1.8);
+    box-shadow: 0 0 100px rgba(212, 165, 116, 0.45), inset 0 0 40px rgba(212, 165, 116, 0.25);
+  }
+  .breath-circle.hold-in {
+    transform: scale(1.8);
+  }
+  .breath-circle.exhale {
+    transform: scale(1.0);
+  }
+  .breath-circle.hold-out {
+    transform: scale(1.0);
+  }
+  .breath-label {
+    position: absolute;
+    color: var(--ink-dim); font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: 1.5rem; letter-spacing: .12em;
+    text-transform: lowercase;
+    text-shadow: 0 0 12px rgba(184, 152, 96, 0.3);
+    pointer-events: none;
+  }
+  .sit-clock {
+    font-family: 'Cormorant Garamond', serif; color: var(--accent);
+    font-size: 2.2rem; text-align: center; letter-spacing: .05em;
+  }
+  .sit-mantra {
+    text-align: center; font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: 1.2rem; color: var(--ink); margin: .5rem 0;
+    min-height: 1.5em;
+  }
+
   /* State (guṇa) check-in pills */
   .guna-pills { display: flex; gap: .4rem; flex-wrap: wrap; justify-content: center; }
   .guna-pill {
@@ -555,6 +663,7 @@
   </nav>
 
   <main>
+    <div class="status-strip" id="status-strip"></div>
     <!-- HOME -->
     <section class="view active" id="view-home">
       <div class="quote" id="rotating-quote"></div>
@@ -637,6 +746,27 @@
         <div class="hint" style="margin-top:1rem;">
           Personal best hold: <span id="bw-pb" style="color:var(--accent);">—</span>.
           Today's holds: <span id="bw-today">—</span>.
+        </div>
+      </div>
+
+      <div class="panel">
+        <header><h2>Guided Sit <span class="sanskrit">· dhyāna</span></h2>
+          <span class="meta">breath cadence adapts to mantra setting</span></header>
+        <p class="hint">A timed sit with the breath as anchor. The mantra is spoken at the start and midpoint by the browser; you carry it the rest. The circle expands on the in-breath and contracts on the out — follow it, do not lead it.</p>
+        <div class="sit-stage">
+          <div class="breath-circle" id="breath-circle"></div>
+          <div class="breath-label" id="breath-label">begin</div>
+        </div>
+        <div class="sit-clock" id="sit-clock">—:—</div>
+        <div class="sit-mantra" id="sit-mantra-preview"></div>
+        <div id="sit-controls" class="btn-row" style="justify-content:center;">
+          <button data-min="5">5 min</button>
+          <button data-min="10" class="primary">10 min</button>
+          <button data-min="15">15 min</button>
+          <button data-min="20">20 min</button>
+        </div>
+        <div id="sit-active" class="btn-row" style="justify-content:center;display:none;">
+          <button id="sit-stop" class="warn">Stop sit</button>
         </div>
       </div>
 
@@ -1237,6 +1367,7 @@ function renderMorning() {
     ? d.breathwork.holds.map(x => x + 's').join(' · ')
     : '—';
   renderMorningMantra();
+  renderSitPreview();
 }
 function renderMorningMantra() {
   const panel = $('#morning-mantra-panel');
@@ -1248,6 +1379,16 @@ function renderMorningMantra() {
     (m.core ? `"${escape(m.core)}"` : '<span style="color:var(--ink-faint);">No core line.</span>') +
     (affirms.length ? `<div class="mantra-affirm">${affirms.map(a => '· ' + escape(a.text)).join('<br>')}</div>` : '');
   $('#morning-mantra-count').textContent = todayJapaCount();
+}
+function renderSitPreview() {
+  const m = getActiveMantra();
+  const el = $('#sit-mantra-preview');
+  if (!el) return;
+  if (m && m.core) {
+    el.innerHTML = `"${escape(m.core)}"`;
+  } else {
+    el.innerHTML = '<span style="color:var(--ink-faint);">Set a mantra in Saṅkalpa to hear it spoken during the sit.</span>';
+  }
 }
 function pbHold() {
   const s = S.read();
@@ -2157,15 +2298,27 @@ function renderQualityDetail() {
   const s = S.read();
   const q = s.sankalpa.orchestra.qualities.find(qx => qx.key === activeQualityKey);
   if (!q) { wrap.innerHTML = ''; return; }
+  const r = q.regimen || {};
+  const reg = (label, val) => val
+    ? `<div style="color:var(--ink-faint);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;margin-top:.9rem;">${label}</div>
+       <div style="color:var(--ink);font-size:.92rem;line-height:1.55;margin-top:.15rem;">${escape(val)}</div>`
+    : '';
   wrap.innerHTML = `<div class="quality-detail">
     <h3 style="margin:0;"><span class="q-skt">${escape(q.skt)}</span> <span class="q-deva">${escape(q.deva)}</span> <span style="color:var(--ink);font-family:'Inter',sans-serif;font-style:normal;font-size:.9rem;margin-left:.5rem;">· ${escape(q.en)}</span></h3>
     <div class="gloss">${escape(q.gloss)}</div>
-    <div style="color:var(--ink-faint);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.4rem;">Affirmations for this movement</div>
+    ${reg('Daily', r.daily)}
+    ${reg('Breath protocol', r.breath)}
+    ${reg('The 40-day commitment', r.commitment)}
+    ${reg('Landed when…', r.landed)}
+    ${reg('Anchors', r.anchors)}
+    <div style="color:var(--ink-faint);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;margin-top:1.2rem;margin-bottom:.4rem;">Affirmations for this movement</div>
     <div id="affirm-list"></div>
     <button class="add-affirm" id="affirm-add">+ add affirmation</button>
   </div>`;
   renderAffirmations(q);
   $('#affirm-add').addEventListener('click', () => addAffirmation(q.key));
+  // Smooth scroll into view — helps the AuDHD eye find the new content
+  setTimeout(() => wrap.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
 }
 
 function renderAffirmations(q) {
@@ -2280,6 +2433,7 @@ function addJapa(n) {
     });
   });
   renderJapa();
+  renderStatusStrip();
 }
 function resetJapaToday() {
   S.update(s => {
@@ -2399,6 +2553,128 @@ function wireSankalpa() {
   });
 }
 
+/* ───────── Status strip (AuDHD anchor — always shows where you are) ───────── */
+function renderStatusStrip() {
+  const strip = $('#status-strip');
+  if (!strip) return;
+  const s = S.read();
+  const month = activeMonthIndex(s);
+  const q = month ? s.sankalpa.orchestra.qualities.find(qx => qx.order === month) : null;
+  const start = s.sankalpa.orchestra.startDate;
+  const dayInCycle = start ? Math.floor((Date.now() - new Date(start).getTime()) / 86400000) + 1 : 0;
+  const dayInMonth = start ? ((dayInCycle - 1) % s.sankalpa.orchestra.monthDays) + 1 : 0;
+  const mantra = getActiveMantra();
+  const today = new Date();
+  const dateStr = today.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+  const timeStr = today.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+
+  let parts = [`<span style="color:var(--ink-faint);">${escape(dateStr)} · ${escape(timeStr)}</span>`];
+  if (q && start) {
+    parts.push(`<span class="ssep">·</span>`);
+    parts.push(`<span class="pill active">M${q.order}/9 · day ${dayInMonth}/${s.sankalpa.orchestra.monthDays}</span>`);
+    parts.push(`<span class="q-skt" style="font-size:.9rem;">${escape(q.skt)}</span>`);
+    parts.push(`<span style="color:var(--ink-dim);">${escape(q.en)}</span>`);
+  } else {
+    parts.push(`<span class="ssep">·</span>`);
+    parts.push(`<span class="pill">Orchestra not started — visit Saṅkalpa to begin</span>`);
+  }
+  if (mantra && mantra.core) {
+    parts.push(`<span class="ssep" style="margin-left:auto;">·</span>`);
+    parts.push(`<span style="color:var(--ink-dim);font-style:italic;font-family:'Cormorant Garamond',serif;font-size:.95rem;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">"${escape(mantra.core)}"</span>`);
+    parts.push(`<span class="pill"><span style="color:var(--accent);">${todayJapaCount()}</span> japa</span>`);
+  }
+  strip.innerHTML = parts.join(' ');
+}
+
+/* ───────── Guided sit (Morning) — breath circle + optional TTS mantra ───────── */
+let sitTimer = null;
+let sitState = { running: false, startedAt: 0, durationMs: 0, breath: 'box' };
+
+const BREATH_CYCLES = {
+  'box':     [{ phase: 'inhale', label: 'in',  ms: 4000 }, { phase: 'hold-in', label: 'hold', ms: 4000 }, { phase: 'exhale', label: 'out', ms: 4000 }, { phase: 'hold-out', label: 'hold', ms: 4000 }],
+  '4-7-8':   [{ phase: 'inhale', label: 'in',  ms: 4000 }, { phase: 'hold-in', label: 'hold', ms: 7000 }, { phase: 'exhale', label: 'out', ms: 8000 }],
+  'wim-hof': [{ phase: 'inhale', label: 'in',  ms: 2000 }, { phase: 'exhale', label: 'out', ms: 2000 }],
+  'free':    [{ phase: 'inhale', label: 'in',  ms: 4500 }, { phase: 'exhale', label: 'out', ms: 5500 }],
+};
+
+function speakMantra(text) {
+  if (!text || !window.speechSynthesis) return;
+  try {
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 0.85; utter.pitch = 0.95; utter.volume = 0.9;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utter);
+  } catch (e) { /* TTS unavailable; silent */ }
+}
+
+function startSit(durationMin) {
+  if (sitState.running) return;
+  const mantra = getActiveMantra();
+  const breath = (mantra && mantra.breath) || 'box';
+  sitState = { running: true, startedAt: Date.now(), durationMs: durationMin * 60 * 1000, breath };
+  $('#sit-controls').style.display = 'none';
+  $('#sit-active').style.display = '';
+  const cycle = BREATH_CYCLES[breath] || BREATH_CYCLES['box'];
+  let stepIdx = 0;
+  const stepBreath = () => {
+    if (!sitState.running) return;
+    const step = cycle[stepIdx % cycle.length];
+    const circle = $('#breath-circle');
+    if (circle) {
+      circle.classList.remove('inhale', 'hold-in', 'exhale', 'hold-out');
+      circle.classList.add(step.phase);
+    }
+    const label = $('#breath-label');
+    if (label) label.textContent = step.label;
+    stepIdx++;
+    sitTimer = setTimeout(stepBreath, step.ms);
+  };
+  stepBreath();
+  // Speak the mantra at start
+  if (mantra && mantra.core) speakMantra(mantra.core);
+  // Clock & midpoint
+  const tick = () => {
+    if (!sitState.running) return;
+    const elapsed = Date.now() - sitState.startedAt;
+    const remaining = Math.max(0, sitState.durationMs - elapsed);
+    $('#sit-clock').textContent = fmtTime(Math.floor(remaining / 1000));
+    if (remaining <= 0) { completeSit(); return; }
+    // Speak mantra at midpoint (once)
+    if (!sitState.midpointSpoken && elapsed >= sitState.durationMs / 2) {
+      sitState.midpointSpoken = true;
+      if (mantra && mantra.core) speakMantra(mantra.core);
+    }
+    requestAnimationFrame(() => setTimeout(tick, 500));
+  };
+  tick();
+}
+function stopSit(complete = false) {
+  if (sitTimer) { clearTimeout(sitTimer); sitTimer = null; }
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  if (sitState.running) {
+    const durSec = Math.floor((Date.now() - sitState.startedAt) / 1000);
+    const mantra = getActiveMantra();
+    S.update(s => {
+      (s.sits = s.sits || []).push({
+        id: 'sit_' + Date.now(), date: S.today(),
+        durationSec: durSec, breath: sitState.breath,
+        completed: complete, mantraId: mantra ? mantra.id : null,
+      });
+    });
+  }
+  sitState = { running: false, startedAt: 0, durationMs: 0, breath: 'box', midpointSpoken: false };
+  const active = $('#sit-active'); if (active) active.style.display = 'none';
+  const controls = $('#sit-controls'); if (controls) controls.style.display = '';
+  const circle = $('#breath-circle');
+  if (circle) circle.classList.remove('inhale','hold-in','exhale','hold-out');
+}
+function completeSit() {
+  const mantra = getActiveMantra();
+  if (mantra && mantra.core) speakMantra(mantra.core);
+  stopSit(true);
+  toast('Sit complete. Recorded.');
+}
+
 /* ───────── Tooltip wiring on Sanskrit terms ───────── */
 function wireTooltips() {
   let tip = document.getElementById('tooltip-floater');
@@ -2478,6 +2754,13 @@ function boot() {
   renderSankalpa();
   $('#morning-japa-1').addEventListener('click', () => addJapa(1));
   $('#morning-japa-108').addEventListener('click', () => addJapa(108));
+  // Guided sit
+  document.querySelectorAll('#sit-controls button[data-min]').forEach(btn =>
+    btn.addEventListener('click', () => startSit(+btn.dataset.min)));
+  $('#sit-stop').addEventListener('click', () => stopSit(false));
+  // Persistent status strip
+  renderStatusStrip();
+  setInterval(renderStatusStrip, 30000);
   // Allow "edit →" link in morning panel to navigate
   document.querySelectorAll('#morning-mantra-panel a[data-view]').forEach(a =>
     a.addEventListener('click', (e) => { e.preventDefault(); navigate(a.dataset.view); }));
