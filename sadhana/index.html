@@ -37,7 +37,23 @@
 
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, sans-serif; font-weight: 400; -webkit-font-smoothing: antialiased; }
-  body { min-height: 100vh; }
+  body {
+    min-height: 100vh;
+    /* Liquid ambient field — warm radial focal anchor that gives the dark its depth.
+       The cave that holds the treasure has light at its center. */
+    background:
+      radial-gradient(ellipse at 22% -10%, rgba(212, 165, 116, 0.06), transparent 55%),
+      radial-gradient(ellipse at 90% 110%, rgba(138, 106, 46, 0.05), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+  }
+  html.light body {
+    background:
+      radial-gradient(ellipse at 22% -10%, rgba(138, 106, 46, 0.06), transparent 55%),
+      radial-gradient(ellipse at 90% 110%, rgba(184, 152, 96, 0.04), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+  }
 
   h1, h2, h3, .serif {
     font-family: 'Cormorant Garamond', 'Times New Roman', serif;
@@ -72,7 +88,10 @@
     font-size: 1.7rem;
     color: var(--ink);
     margin-bottom: .25rem;
+    text-shadow: 0 0 24px rgba(212, 165, 116, 0.25);
+    transition: text-shadow .4s ease;
   }
+  nav.side .brand:hover { text-shadow: 0 0 32px rgba(212, 165, 116, 0.55); }
   nav.side .brand-sub {
     color: var(--ink-faint);
     font-size: .7rem;
@@ -92,11 +111,31 @@
   }
   nav.side a:hover { color: var(--ink); background: var(--panel-2); }
   nav.side a.active { color: var(--accent); background: var(--panel-2); }
-  nav.side a .skt { font-style: italic; color: var(--accent-dim); margin-right: .35rem; }
+  nav.side a .skt {
+    font-style: italic; color: var(--accent-dim); margin-right: .35rem;
+    transition: color .25s ease, text-shadow .35s ease;
+  }
+  nav.side a:hover .skt { color: var(--accent); text-shadow: 0 0 12px rgba(184, 152, 96, 0.4); }
+  nav.side a.active .skt { color: var(--accent); text-shadow: 0 0 14px rgba(184, 152, 96, 0.5); }
 
   main { padding: 2rem 2.5rem 4rem 2.5rem; max-width: 1080px; }
   section.view { display: none; }
-  section.view.active { display: block; }
+  section.view.active {
+    display: block;
+    animation: fadeRise .42s cubic-bezier(.16,.84,.44,1) both;
+  }
+  @keyframes fadeRise {
+    from { opacity: 0; transform: translateY(8px); filter: blur(2px); }
+    to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+  }
+  @keyframes breathe {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(184, 152, 96, 0.18); }
+    50%      { box-shadow: 0 0 0 6px rgba(184, 152, 96, 0); }
+  }
+  @keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position:  200% center; }
+  }
 
   /* Panels */
   .panel {
@@ -106,6 +145,11 @@
     padding: 1.25rem 1.4rem;
     margin-bottom: 1.25rem;
     box-shadow: var(--shadow);
+    transition: border-color .25s ease, box-shadow .35s ease, transform .35s ease;
+  }
+  .panel:hover {
+    border-color: rgba(184, 152, 96, 0.35);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.04), 0 14px 40px rgba(0,0,0,0.25);
   }
   .panel header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: .9rem; }
   .panel header h2 { margin: 0; }
@@ -364,6 +408,121 @@
   .con-paragraph { color: var(--ink); font-size: .95rem; line-height: 1.6; margin-top: .25rem; }
   .con-prompts li { color: var(--ink); font-size: .95rem; line-height: 1.55; margin-bottom: .35rem; }
 
+  /* Saṅkalpa view */
+  .vision-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+  .vision-grid textarea { min-height: 90px; }
+  .quality-list { display: grid; gap: .5rem; }
+  .quality-row {
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    gap: .8rem; align-items: center;
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 4px; padding: .7rem .9rem;
+    cursor: pointer; transition: border-color .15s, background .15s;
+  }
+  .quality-row:hover { border-color: var(--accent-dim); }
+  .quality-row.active {
+    border-left: 3px solid var(--accent);
+    background: linear-gradient(90deg, rgba(184, 152, 96, 0.08), transparent 70%), var(--panel-2);
+    animation: breathe 5.5s ease-in-out infinite;
+  }
+  .quality-row.active .q-num,
+  .quality-row.active .q-skt { text-shadow: 0 0 14px rgba(184, 152, 96, 0.4); }
+  .quality-row.locked { opacity: .45; }
+  .quality-row.done { border-left: 3px solid var(--ok); }
+  .q-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem; color: var(--accent);
+    text-align: center; line-height: 1;
+  }
+  .q-skt { font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--accent); font-size: 1.1rem; }
+  .q-en { color: var(--ink); font-size: .95rem; margin-left: .4rem; }
+  .q-deva { color: var(--ink-dim); font-family: 'Cormorant Garamond', serif; margin-left: .4rem; }
+  .q-state { color: var(--ink-faint); font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; }
+  .quality-detail {
+    background: var(--panel-2); border: 1px solid var(--accent-dim);
+    border-radius: 4px; padding: 1.2rem 1.4rem; margin-top: .8rem;
+  }
+  .quality-detail .gloss { color: var(--ink); font-size: .95rem; line-height: 1.6; margin: .5rem 0 1rem; }
+  .affirmation {
+    display: grid; grid-template-columns: 1fr 28px;
+    gap: .5rem; align-items: center;
+    background: var(--panel); border: 1px solid var(--line);
+    border-left: 2px solid var(--accent-dim);
+    border-radius: 4px; padding: .55rem .75rem; margin-bottom: .35rem;
+  }
+  .affirmation input { background: transparent; border: none; color: var(--ink); font-size: .95rem; padding: 0; }
+  .affirmation .x { color: var(--ink-faint); cursor: pointer; text-align: center; font-size: 1.1rem; }
+  .affirmation .x:hover { color: var(--warn); }
+  .add-affirm {
+    background: transparent; color: var(--accent); border: 1px dashed var(--accent-dim);
+    padding: .5rem 1rem; border-radius: 4px; cursor: pointer; font-size: .85rem;
+    width: 100%; margin-top: .4rem;
+  }
+  .add-affirm:hover { background: var(--panel); }
+
+  .mantra-display {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 1.6rem; line-height: 1.45; color: var(--ink);
+    text-align: center; padding: 1.4rem 1rem;
+    background:
+      radial-gradient(ellipse at center, rgba(184, 152, 96, 0.06), transparent 70%);
+    border-radius: 6px;
+    transition: text-shadow .5s ease;
+  }
+  .mantra-display:hover { text-shadow: 0 0 18px rgba(212, 165, 116, 0.25); }
+  .mantra-affirm { font-size: 1.05rem; color: var(--ink-dim); margin-top: .8rem; }
+  .japa-counter {
+    font-family: 'Cormorant Garamond', serif; color: var(--accent);
+    font-size: 3rem; text-align: center; line-height: 1;
+  }
+  .japa-label { color: var(--ink-faint); font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; text-align: center; }
+
+  .why-chain { margin-bottom: .5rem; }
+  .why-chain input {
+    background: var(--panel); border: 1px solid var(--line); color: var(--ink);
+    padding: .5rem .7rem; border-radius: 4px; width: 100%;
+    margin-bottom: .35rem; font-size: .92rem;
+  }
+  .why-chain input.root { border-left: 2px solid var(--accent); }
+  .why-chain .depth { color: var(--ink-faint); font-size: .75rem; margin-right: .5rem; font-style: italic; }
+  .past-chain {
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 4px; padding: .7rem .9rem; margin-bottom: .4rem;
+  }
+  .past-chain .date { color: var(--ink-faint); font-size: .72rem; letter-spacing: .1em; }
+  .past-chain .root { color: var(--ink); font-weight: 500; }
+  .past-chain .step { color: var(--ink-dim); font-size: .88rem; padding-left: 1rem; border-left: 1px solid var(--line); margin-top: .25rem; }
+
+  .wrong-thought {
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-left: 2px solid var(--warn);
+    border-radius: 4px; padding: .7rem .9rem; margin-bottom: .4rem;
+  }
+  .wrong-thought .belief { color: var(--ink); }
+  .wrong-thought .counter { color: var(--ok); font-size: .9rem; margin-top: .25rem; font-style: italic; }
+  .wrong-thought .date { color: var(--ink-faint); font-size: .72rem; }
+
+  .lineage-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .8rem; }
+  .teacher-card {
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-left: 2px solid var(--accent-dim);
+    border-radius: 4px; padding: 1rem 1.1rem;
+  }
+  .teacher-card .name { color: var(--ink); font-weight: 500; font-size: 1rem; }
+  .teacher-card .role { color: var(--accent); font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; margin-top: .2rem; }
+  .teacher-card .contribution { color: var(--ink-dim); font-size: .88rem; line-height: 1.5; margin-top: .55rem; }
+
+  /* State (guṇa) check-in pills */
+  .guna-pills { display: flex; gap: .4rem; flex-wrap: wrap; justify-content: center; }
+  .guna-pill {
+    background: var(--panel); border: 1px solid var(--line); color: var(--ink-dim);
+    padding: .4rem .9rem; border-radius: 20px; cursor: pointer;
+    font-size: .82rem; letter-spacing: .04em;
+  }
+  .guna-pill:hover { border-color: var(--accent-dim); color: var(--ink); }
+  .guna-pill.selected { background: var(--accent-dim); color: var(--ink); border-color: var(--accent); }
+
   /* Section header for sub-nav */
   nav.side .nav-section {
     margin-top: 1.5rem; color: var(--ink-faint);
@@ -385,6 +544,7 @@
     <a data-view="schedule"><span class="skt" data-term="kāla">Kāla</span>Schedule</a>
     <a data-view="svadhyaya"><span class="skt" data-term="svādhyāya">Svādhyāya</span>Review</a>
     <a data-view="metrics"><span class="skt" data-term="saṃkhyā">Saṃkhyā</span>Metrics</a>
+    <a data-view="sankalpa"><span class="skt" data-term="saṅkalpa">Saṅkalpa</span>Intention</a>
     <div class="nav-section">Ground</div>
     <a data-view="lexicon"><span class="skt" data-term="śabda">Śabda</span>Lexicon</a>
     <a data-view="contemplation"><span class="skt" data-term="manana">Manana</span>Contemplation</a>
@@ -477,6 +637,19 @@
         <div class="hint" style="margin-top:1rem;">
           Personal best hold: <span id="bw-pb" style="color:var(--accent);">—</span>.
           Today's holds: <span id="bw-today">—</span>.
+        </div>
+      </div>
+
+      <div class="panel" id="morning-mantra-panel" style="display:none;">
+        <header><h2>Today's Mantra <span class="sanskrit">· post-breathwork</span></h2>
+          <span class="meta"><a data-view="sankalpa" style="color:var(--accent);">edit →</a></span></header>
+        <p class="hint">The breath has opened the channel; the mantra is what travels it. Speak it, hold the meaning, count the repetitions.</p>
+        <div class="mantra-display" id="morning-mantra-display"></div>
+        <div class="japa-counter" id="morning-mantra-count">0</div>
+        <div class="japa-label">repetitions today</div>
+        <div class="btn-row" style="justify-content:center;margin-top:.8rem;">
+          <button id="morning-japa-1">+1</button>
+          <button id="morning-japa-108" class="primary">+108 (mālā)</button>
         </div>
       </div>
     </section>
@@ -664,6 +837,133 @@
       <div class="panel">
         <header><h2>Monthly compound</h2></header>
         <div id="monthly-compound"></div>
+      </div>
+    </section>
+
+    <!-- SAṄKALPA -->
+    <section class="view" id="view-sankalpa">
+      <h1>Saṅkalpa <span class="sanskrit">· Intention</span></h1>
+      <p class="hint">The seed of manifestation. Construct a vision; refine it into a nine-month orchestra; let each movement shape the next. The agent reads this as its ground for what is being cultivated, and orients its prompts toward completing the owner's understanding of the owner.</p>
+
+      <!-- VISION -->
+      <div class="panel">
+        <header><h2>Vision <span class="sanskrit">· dṛṣṭi</span></h2>
+          <span class="meta" id="vision-saved">—</span></header>
+        <p class="hint">The horizon the practice is oriented toward. Honest, specific, present tense. Save changes when you've revised.</p>
+        <div class="vision-grid">
+          <div>
+            <label>Five-year future self</label>
+            <textarea id="vision-five" placeholder="Who am I, what am I doing, what is my life like, five years from now? Specific, present tense, as if it is already true."></textarea>
+          </div>
+          <div>
+            <label>This year's aim</label>
+            <textarea id="vision-year" placeholder="The single most important thing this year is to embody…"></textarea>
+          </div>
+        </div>
+        <div class="btn-row" style="margin-top:.75rem;">
+          <button id="vision-save" class="primary">Save vision</button>
+        </div>
+      </div>
+
+      <!-- ORCHESTRA -->
+      <div class="panel">
+        <header><h2>The Orchestra <span class="sanskrit">· saṅkalpa-mālā</span></h2>
+          <span class="meta" id="orchestra-status">—</span></header>
+        <p class="hint">Nine movements over nine months. Each month, one quality enters the orchestra and stays — by month nine, all nine sound together. Click a movement to open its affirmations. The agent uses the active movement to shape the morning prompt.</p>
+        <div class="btn-row" style="margin-bottom:.75rem;">
+          <button id="orchestra-start">Start the cycle today</button>
+          <button id="orchestra-advance">Advance manually</button>
+          <button id="orchestra-reset" class="warn">Reset</button>
+        </div>
+        <div class="quality-list" id="quality-list"></div>
+        <div id="quality-detail"></div>
+      </div>
+
+      <!-- MANTRA + JAPA -->
+      <div class="grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="panel">
+          <header><h2>Today's Mantra <span class="sanskrit">· mantra</span></h2></header>
+          <p class="hint">Assembled from the active movement's affirmations. Edit the core line; the affirmations come from the orchestra.</p>
+          <label>Core saṅkalpa (one sentence, present tense)</label>
+          <textarea id="mantra-core" placeholder="I am the kind of person who…"></textarea>
+          <label style="margin-top:.6rem;">Breath carrier</label>
+          <select id="mantra-breath">
+            <option value="wim-hof">Wim Hof — 30 deep, hold, recover</option>
+            <option value="box">Box breath — 4-4-4-4</option>
+            <option value="4-7-8">4-7-8 (Andrew Weil)</option>
+            <option value="free">Free / natural</option>
+          </select>
+          <div class="btn-row" style="margin-top:.75rem;">
+            <button id="mantra-save" class="primary">Set as today's mantra</button>
+          </div>
+        </div>
+        <div class="panel">
+          <header><h2>Japa <span class="sanskrit">· repetition</span></h2></header>
+          <div class="mantra-display" id="mantra-display">No mantra set.</div>
+          <div class="japa-counter" id="japa-count">0</div>
+          <div class="japa-label">repetitions today</div>
+          <div class="btn-row" style="justify-content:center;margin-top:.8rem;">
+            <button id="japa-plus-1">+1</button>
+            <button id="japa-plus-108" class="primary">+108 (mālā)</button>
+            <button id="japa-reset">Reset day</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FIVE WHYS -->
+      <div class="panel">
+        <header><h2>The Five Whys <span class="sanskrit">· nididhyāsana</span></h2></header>
+        <p class="hint">Take a goal, a pain, a question. Ask "why?" five times. Each layer peels what was hiding the next. The chain bottoms out in something irreducible — that is the thing.</p>
+        <div id="why-active">
+          <input type="text" class="root" id="why-root" placeholder="The surface — a goal, a pain, a question…">
+          <div id="why-steps"></div>
+          <div class="btn-row" style="margin-top:.5rem;">
+            <button id="why-begin" class="primary">Begin chain</button>
+            <button id="why-save">Save chain</button>
+            <button id="why-clear">Clear</button>
+          </div>
+        </div>
+        <h3 style="margin-top:1rem;font-size:.85rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.12em;">Past chains</h3>
+        <div id="why-past"></div>
+      </div>
+
+      <!-- WRONG THOUGHT -->
+      <div class="panel">
+        <header><h2>Wrong Thought <span class="sanskrit">· mithyā-jñāna</span></h2></header>
+        <p class="hint">Name a limiting belief you noticed today. Then name evidence against it. The naming defuses the belief; the evidence finishes the work. Patañjali (1.8): viparyaya is false knowledge that does not rest on the form of its object.</p>
+        <label>The belief</label>
+        <textarea id="wrong-belief" placeholder="I'm not the kind of person who…" rows="2"></textarea>
+        <label style="margin-top:.5rem;">Evidence against it</label>
+        <textarea id="wrong-counter" placeholder="Three concrete instances where this belief turned out not to be true…" rows="2"></textarea>
+        <div class="btn-row" style="margin-top:.5rem;">
+          <button id="wrong-save" class="primary">Add to log</button>
+        </div>
+        <h3 style="margin-top:1rem;font-size:.85rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.12em;">Log</h3>
+        <div id="wrong-list"></div>
+      </div>
+
+      <!-- LINEAGE -->
+      <div class="panel">
+        <header><h2>Lineage <span class="sanskrit">· paramparā</span></h2></header>
+        <p class="hint">The teachers whose techniques the manifestation panel synthesizes. Each one is a pointer; the practice is what survives in your own body after the pointer has been understood.</p>
+        <div class="lineage-grid">
+          <div class="teacher-card"><div class="name">Patañjali</div><div class="role">Sūtra · ~400 BCE</div>
+            <div class="contribution">The sūtra that grounds it all: <em>taj-japas tad-artha-bhāvanam</em> (1.28) — repetition of the mantra with cultivation of its meaning. Japa without bhāvanā is muttering; bhāvanā without japa is mere understanding. The mantra works because the two together change the substrate.</div></div>
+          <div class="teacher-card"><div class="name">The Bhagavad Gītā</div><div class="role">Verse · ~200 BCE</div>
+            <div class="contribution">Saṅkalpa-prabhavān kāmān (6.24) — the warning that desires born of unrefined intention are what bind. The work is to refine saṅkalpa until what is left is svadharma. And 16.1: abhayam first — fearlessness is the floor every other quality stands on.</div></div>
+          <div class="teacher-card"><div class="name">Bob Proctor</div><div class="role">Paradigm · 1934–2022</div>
+            <div class="contribution">The paradigm is the collection of habits in the subconscious that produces a life. You change the paradigm through repetition of the chosen idea (auto-suggestion) until the subconscious accepts it as true. Then reality reorganizes. Inherited from Nightingale → Hill. The Sanskrit name for paradigm is vāsanā.</div></div>
+          <div class="teacher-card"><div class="name">Joe Dispenza</div><div class="role">Neuroplasticity · b. 1962</div>
+            <div class="contribution">Mental rehearsal of the future self literally rewires the substrate — Hebbian wiring plus chemical retraining. Becoming Supernatural is the protocol: clear meditation, emotional embodiment of the not-yet-actual future state, repeated until biology accepts it. The pre-modern name is bhāvanā.</div></div>
+          <div class="teacher-card"><div class="name">Wim Hof</div><div class="role">Breath & cold · b. 1959</div>
+            <div class="contribution">Three pillars: breath, cold, commitment. The breath cycle (30 deep, exhale hold, recovery breath, hold) is tummo-derived — gateway access to the autonomic nervous system. The breath is the carrier of state-change; the cold is the test that the state has actually changed.</div></div>
+          <div class="teacher-card"><div class="name">Sandy Abrams</div><div class="role">Breathe to Succeed</div>
+            <div class="contribution">The case for the simplest, most accessible breath, integrated into the workday — not breath as retreat, but breath as the seam between the demands of the day and the state you bring to them. The 90-second breath break is the Western haṭha-yoga discipline.</div></div>
+          <div class="teacher-card"><div class="name">David Goggins</div><div class="role">Tapas · Can't Hurt Me</div>
+            <div class="contribution">The 40 percent rule: when you think you are done, you have used 40 percent of what you have. The accountability mirror: meet your own eyes daily and tell yourself the truth. The "cookie jar": stack of past hardships endured, drawn from when the current one says no further. Goggins is tapas in plain English, and proof that the aMCC enlarges most in the people the world considered finished.</div></div>
+          <div class="teacher-card"><div class="name">Andrew Huberman</div><div class="role">Neurobiology · Stanford</div>
+            <div class="contribution">The protocols layer: morning sunlight within an hour of waking (cortisol pulse, circadian anchor); deliberate cold exposure for dopamine and norepinephrine; NSDR / Yoga Nidrā for state recovery; "tools" for focus (binaural, fixation, breathwork). Huberman is what happens when the yogis' empirical claims meet a Stanford lab. The aMCC findings he popularizes are the neurological substrate of every other teacher on this list.</div></div>
+        </div>
       </div>
     </section>
 
@@ -869,6 +1169,7 @@ function navigate(view) {
   if (view === 'morning') renderMorning();
   if (view === 'lexicon') renderLexicon();
   if (view === 'contemplation') renderContemplation();
+  if (view === 'sankalpa') renderSankalpa();
 }
 $$('nav.side a[data-view]').forEach(a => a.addEventListener('click', () => navigate(a.dataset.view)));
 
@@ -935,6 +1236,18 @@ function renderMorning() {
   $('#bw-today').textContent = (d.breathwork && d.breathwork.holds && d.breathwork.holds.length)
     ? d.breathwork.holds.map(x => x + 's').join(' · ')
     : '—';
+  renderMorningMantra();
+}
+function renderMorningMantra() {
+  const panel = $('#morning-mantra-panel');
+  const m = getActiveMantra();
+  if (!m) { panel.style.display = 'none'; return; }
+  panel.style.display = '';
+  const affirms = activeAffirmations();
+  $('#morning-mantra-display').innerHTML =
+    (m.core ? `"${escape(m.core)}"` : '<span style="color:var(--ink-faint);">No core line.</span>') +
+    (affirms.length ? `<div class="mantra-affirm">${affirms.map(a => '· ' + escape(a.text)).join('<br>')}</div>` : '');
+  $('#morning-mantra-count').textContent = todayJapaCount();
 }
 function pbHold() {
   const s = S.read();
@@ -1765,6 +2078,327 @@ function focusContemplation(text) {
   }
 }
 
+/* ───────── Saṅkalpa (Intention) ───────── */
+let activeQualityKey = null;
+let activeChain = [];
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  } catch (e) { return iso.slice(0, 10); }
+}
+
+function renderSankalpa() {
+  renderVision();
+  renderOrchestra();
+  renderQualityDetail();
+  renderMantraDisplay();
+  renderJapa();
+  renderWhys();
+  renderWrongThoughts();
+}
+
+function renderVision() {
+  const s = S.read();
+  const v = s.sankalpa.vision || {};
+  $('#vision-five').value = v.five || '';
+  $('#vision-year').value = v.year || '';
+  $('#vision-saved').textContent = v.savedAt ? 'saved ' + fmtDate(v.savedAt) : '—';
+}
+
+function activeMonthIndex(s) {
+  const start = s.sankalpa.orchestra.startDate;
+  if (!start) return 0;
+  if (s.sankalpa.orchestra.manualMonth) return s.sankalpa.orchestra.manualMonth;
+  const days = Math.floor((Date.now() - new Date(start).getTime()) / 86400000);
+  const month = Math.floor(days / s.sankalpa.orchestra.monthDays) + 1;
+  return Math.min(9, Math.max(1, month));
+}
+
+function renderOrchestra() {
+  const s = S.read();
+  const month = activeMonthIndex(s);
+  const start = s.sankalpa.orchestra.startDate;
+  $('#orchestra-status').textContent = start
+    ? `Month ${month} of 9 · day ${Math.floor((Date.now() - new Date(start).getTime()) / 86400000) + 1}`
+    : 'Not started';
+  $('#quality-list').innerHTML = s.sankalpa.orchestra.qualities.map(q => {
+    let state = 'locked';
+    let stateText = 'locked';
+    if (!start) { state = 'pending'; stateText = ''; }
+    else if (q.order < month) { state = 'done'; stateText = 'sounding'; }
+    else if (q.order === month) { state = 'active'; stateText = 'this month'; }
+    else { state = 'locked'; stateText = 'month ' + q.order; }
+    return `<div class="quality-row ${state}" data-key="${escape(q.key)}">
+      <div class="q-num">${q.order}</div>
+      <div><span class="q-skt" data-term="${escape(q.skt.split(' ')[0].toLowerCase().replace('→','').trim())}">${escape(q.skt)}</span>
+        <span class="q-deva">${escape(q.deva)}</span>
+        <div class="q-en">${escape(q.en)} <span style="color:var(--ink-faint);">· ${(q.affirmations || []).length} affirmation${(q.affirmations || []).length === 1 ? '' : 's'}</span></div>
+      </div>
+      <div class="q-state">${stateText}</div>
+    </div>`;
+  }).join('');
+  $$('.quality-row').forEach(row =>
+    row.addEventListener('click', () => {
+      activeQualityKey = row.dataset.key;
+      renderQualityDetail();
+    }));
+  // Default-select the active month
+  if (!activeQualityKey && start) {
+    const q = s.sankalpa.orchestra.qualities.find(qx => qx.order === month);
+    if (q) activeQualityKey = q.key;
+  }
+}
+
+function renderQualityDetail() {
+  const wrap = $('#quality-detail');
+  if (!activeQualityKey) { wrap.innerHTML = ''; return; }
+  const s = S.read();
+  const q = s.sankalpa.orchestra.qualities.find(qx => qx.key === activeQualityKey);
+  if (!q) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = `<div class="quality-detail">
+    <h3 style="margin:0;"><span class="q-skt">${escape(q.skt)}</span> <span class="q-deva">${escape(q.deva)}</span> <span style="color:var(--ink);font-family:'Inter',sans-serif;font-style:normal;font-size:.9rem;margin-left:.5rem;">· ${escape(q.en)}</span></h3>
+    <div class="gloss">${escape(q.gloss)}</div>
+    <div style="color:var(--ink-faint);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.4rem;">Affirmations for this movement</div>
+    <div id="affirm-list"></div>
+    <button class="add-affirm" id="affirm-add">+ add affirmation</button>
+  </div>`;
+  renderAffirmations(q);
+  $('#affirm-add').addEventListener('click', () => addAffirmation(q.key));
+}
+
+function renderAffirmations(q) {
+  const list = $('#affirm-list');
+  if (!q.affirmations || !q.affirmations.length) {
+    list.innerHTML = '<div class="hint">No affirmations yet. Start with one — a single sentence, present tense, as if it is already true.</div>';
+    return;
+  }
+  list.innerHTML = q.affirmations.map((text, i) =>
+    `<div class="affirmation" data-i="${i}">
+      <input type="text" value="${escape(text)}">
+      <div class="x" title="Remove">×</div>
+    </div>`).join('');
+  $$('#affirm-list .affirmation').forEach(row => {
+    const i = +row.dataset.i;
+    row.querySelector('input').addEventListener('change', (e) => updateAffirmation(q.key, i, e.target.value));
+    row.querySelector('.x').addEventListener('click', () => removeAffirmation(q.key, i));
+  });
+}
+
+function addAffirmation(key) {
+  S.update(s => {
+    const q = s.sankalpa.orchestra.qualities.find(qx => qx.key === key);
+    if (q) (q.affirmations = q.affirmations || []).push('');
+  });
+  renderQualityDetail();
+  // Focus the new input
+  setTimeout(() => {
+    const inputs = $$('#affirm-list .affirmation input');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 30);
+}
+function updateAffirmation(key, i, val) {
+  S.update(s => {
+    const q = s.sankalpa.orchestra.qualities.find(qx => qx.key === key);
+    if (q && q.affirmations[i] !== undefined) q.affirmations[i] = val;
+  });
+  renderMantraDisplay();
+}
+function removeAffirmation(key, i) {
+  S.update(s => {
+    const q = s.sankalpa.orchestra.qualities.find(qx => qx.key === key);
+    if (q) q.affirmations.splice(i, 1);
+  });
+  renderQualityDetail();
+  renderMantraDisplay();
+}
+
+function getActiveMantra() {
+  const s = S.read();
+  if (!s.sankalpa.activeMantraId) return null;
+  return s.sankalpa.mantras.find(m => m.id === s.sankalpa.activeMantraId);
+}
+function activeAffirmations() {
+  const s = S.read();
+  const month = activeMonthIndex(s);
+  if (!month) return [];
+  return s.sankalpa.orchestra.qualities
+    .filter(q => q.order <= month)
+    .flatMap(q => (q.affirmations || []).filter(a => a.trim()).map(a => ({ key: q.key, skt: q.skt, text: a })));
+}
+function renderMantraDisplay() {
+  const m = getActiveMantra();
+  const display = $('#mantra-display');
+  const coreEl = $('#mantra-core');
+  if (m) {
+    coreEl.value = m.core || '';
+    $('#mantra-breath').value = m.breath || 'free';
+    const affirms = activeAffirmations();
+    const affirmHtml = affirms.length
+      ? `<div class="mantra-affirm">${affirms.map(a => '· ' + escape(a.text)).join('<br>')}</div>`
+      : '';
+    display.innerHTML = (m.core ? `"${escape(m.core)}"` : '<span style="color:var(--ink-faint);">No core line set.</span>') + affirmHtml;
+  } else {
+    display.innerHTML = '<span style="color:var(--ink-faint);">No mantra set. Compose one and "Set as today\'s mantra".</span>';
+  }
+}
+function saveMantra() {
+  const core = $('#mantra-core').value.trim();
+  const breath = $('#mantra-breath').value;
+  S.update(s => {
+    const id = 'm_' + Date.now();
+    s.sankalpa.mantras.push({ id, created: new Date().toISOString(), core, breath });
+    s.sankalpa.activeMantraId = id;
+  });
+  renderMantraDisplay();
+  renderJapa();
+  toast('Today\'s mantra set.');
+}
+
+function todayJapaCount() {
+  const s = S.read();
+  const today = S.today();
+  return s.sankalpa.japaSessions
+    .filter(j => j.date === today)
+    .reduce((a, j) => a + (j.count || 0), 0);
+}
+function renderJapa() {
+  $('#japa-count').textContent = todayJapaCount();
+  renderMantraDisplay();
+  // also update the morning panel if rendered
+  const mw = $('#morning-mantra-count');
+  if (mw) mw.textContent = todayJapaCount();
+}
+function addJapa(n) {
+  const m = getActiveMantra();
+  if (!m) { toast('Set a mantra first.'); return; }
+  S.update(s => {
+    s.sankalpa.japaSessions.push({
+      id: 'j_' + Date.now(), date: S.today(),
+      mantraId: m.id, count: n,
+    });
+  });
+  renderJapa();
+}
+function resetJapaToday() {
+  S.update(s => {
+    const today = S.today();
+    s.sankalpa.japaSessions = s.sankalpa.japaSessions.filter(j => j.date !== today);
+  });
+  renderJapa();
+}
+
+function renderWhys() {
+  const stepsWrap = $('#why-steps');
+  stepsWrap.innerHTML = activeChain.map((q, i) =>
+    `<input type="text" data-i="${i}" placeholder="Why? (level ${i + 1})" value="${escape(q)}">`).join('');
+  $$('#why-steps input').forEach(inp =>
+    inp.addEventListener('input', (e) => { activeChain[+e.target.dataset.i] = e.target.value; }));
+  const s = S.read();
+  $('#why-past').innerHTML = (s.sankalpa.whyChains || []).slice(-6).reverse().map(c =>
+    `<div class="past-chain">
+      <div class="date">${fmtDate(c.date)}</div>
+      <div class="root">${escape(c.root)}</div>
+      ${(c.chain || []).map((x, i) => `<div class="step">${i + 1}. ${escape(x)}</div>`).join('')}
+    </div>`).join('') || '<div class="hint">No chains yet.</div>';
+}
+
+function renderWrongThoughts() {
+  const s = S.read();
+  $('#wrong-list').innerHTML = (s.sankalpa.wrongThoughts || []).slice(-8).reverse().map(w =>
+    `<div class="wrong-thought">
+      <div class="date">${fmtDate(w.date)}</div>
+      <div class="belief">"${escape(w.belief)}"</div>
+      <div class="counter">→ ${escape(w.counter)}</div>
+    </div>`).join('') || '<div class="hint">No entries yet.</div>';
+}
+
+function wireSankalpa() {
+  $('#vision-save').addEventListener('click', () => {
+    S.update(s => {
+      s.sankalpa.vision = {
+        five: $('#vision-five').value.trim(),
+        year: $('#vision-year').value.trim(),
+        savedAt: new Date().toISOString(),
+      };
+    });
+    renderVision();
+    toast('Vision saved.');
+  });
+  $('#orchestra-start').addEventListener('click', () => {
+    S.update(s => {
+      s.sankalpa.orchestra.startDate = new Date().toISOString();
+      s.sankalpa.orchestra.manualMonth = null;
+    });
+    activeQualityKey = null;
+    renderSankalpa();
+    toast('Orchestra started. Month 1: embracing fear.');
+  });
+  $('#orchestra-advance').addEventListener('click', () => {
+    S.update(s => {
+      const cur = activeMonthIndex(s);
+      s.sankalpa.orchestra.manualMonth = Math.min(9, cur + 1);
+    });
+    activeQualityKey = null;
+    renderSankalpa();
+  });
+  $('#orchestra-reset').addEventListener('click', () => {
+    if (!confirm('Reset the orchestra? Affirmations are preserved; only the start date and progression reset.')) return;
+    S.update(s => {
+      s.sankalpa.orchestra.startDate = null;
+      s.sankalpa.orchestra.manualMonth = null;
+    });
+    activeQualityKey = null;
+    renderSankalpa();
+  });
+  $('#mantra-save').addEventListener('click', saveMantra);
+  $('#japa-plus-1').addEventListener('click', () => addJapa(1));
+  $('#japa-plus-108').addEventListener('click', () => addJapa(108));
+  $('#japa-reset').addEventListener('click', resetJapaToday);
+  $('#why-begin').addEventListener('click', () => {
+    const root = $('#why-root').value.trim();
+    if (!root) { toast('Enter a surface first.'); return; }
+    activeChain = ['', '', '', '', ''];
+    renderWhys();
+  });
+  $('#why-save').addEventListener('click', () => {
+    const root = $('#why-root').value.trim();
+    if (!root || !activeChain.length) { toast('Begin a chain first.'); return; }
+    S.update(s => {
+      (s.sankalpa.whyChains = s.sankalpa.whyChains || []).push({
+        id: 'wc_' + Date.now(),
+        date: new Date().toISOString(),
+        root,
+        chain: activeChain.filter(x => x && x.trim()),
+      });
+    });
+    activeChain = [];
+    $('#why-root').value = '';
+    renderWhys();
+    toast('Chain saved.');
+  });
+  $('#why-clear').addEventListener('click', () => {
+    activeChain = [];
+    $('#why-root').value = '';
+    renderWhys();
+  });
+  $('#wrong-save').addEventListener('click', () => {
+    const belief = $('#wrong-belief').value.trim();
+    const counter = $('#wrong-counter').value.trim();
+    if (!belief || !counter) { toast('Name both the belief and the counter-evidence.'); return; }
+    S.update(s => {
+      (s.sankalpa.wrongThoughts = s.sankalpa.wrongThoughts || []).push({
+        id: 'wt_' + Date.now(), date: new Date().toISOString(), belief, counter,
+      });
+    });
+    $('#wrong-belief').value = '';
+    $('#wrong-counter').value = '';
+    renderWrongThoughts();
+    toast('Logged.');
+  });
+}
+
 /* ───────── Tooltip wiring on Sanskrit terms ───────── */
 function wireTooltips() {
   let tip = document.getElementById('tooltip-floater');
@@ -1839,6 +2473,14 @@ function boot() {
   });
   $('#con-draw').addEventListener('click', () => renderDrawnContemplation(CON.random()));
   $('#con-daily').addEventListener('click', () => renderDrawnContemplation(CON.byIndex(CON.dailyIndex())));
+  // Saṅkalpa
+  wireSankalpa();
+  renderSankalpa();
+  $('#morning-japa-1').addEventListener('click', () => addJapa(1));
+  $('#morning-japa-108').addEventListener('click', () => addJapa(108));
+  // Allow "edit →" link in morning panel to navigate
+  document.querySelectorAll('#morning-mantra-panel a[data-view]').forEach(a =>
+    a.addEventListener('click', (e) => { e.preventDefault(); navigate(a.dataset.view); }));
 }
 boot();
 </script>
