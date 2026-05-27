@@ -1135,6 +1135,18 @@
           <span class="pill" id="pill-days">days</span>
           Both must be green before <code>agent.html</code> activates.
         </div>
+        <div class="divider"></div>
+        <label style="display:flex;align-items:flex-start;gap:.6rem;cursor:pointer;">
+          <input type="checkbox" id="bypass-gate" style="margin-top:.2rem;flex-shrink:0;">
+          <span><strong>Unlock the agent immediately (bypass the 14-day floor)</strong><br>
+            <span class="hint" style="font-size:.85rem;">
+              The 14-day rule exists because the agent needs trailing data to reflect on
+              without fabricating. Bypassing it on day one means the first reflections
+              will be thin — but you have your own substance to bring, and the agent can
+              read your saṅkalpa, orchestra, and any svādhyāya entries you've written.
+              Enable for early access; honor the practice anyway.
+            </span></span>
+        </label>
       </div>
 
       <div class="panel">
@@ -2067,18 +2079,21 @@ async function renderSettings() {
   const daysRemaining = firstEntryDays === null ? 14 : Math.max(0, 14 - firstEntryDays);
   const entriesRemaining = Math.max(0, 14 - entries);
 
-  const flagOk = cfg.agent_enabled === true;
-  const daysOk = entries >= 14;
+  const bypass = !!s.settings.bypassGate;
+  const flagOk = cfg.agent_enabled === true || bypass;
+  const daysOk = entries >= 14 || bypass;
 
-  $('#pill-flag').textContent = flagOk ? 'flag: on' : 'flag: off';
+  $('#bypass-gate').checked = bypass;
+
+  $('#pill-flag').textContent = bypass ? 'flag: bypassed' : (flagOk ? 'flag: on' : 'flag: off');
   $('#pill-flag').classList.toggle('on', flagOk);
   $('#pill-flag').classList.toggle('warn', !flagOk);
-  $('#pill-days').textContent = daysOk ? 'days: ≥14' : `days: ${entries}/14`;
+  $('#pill-days').textContent = bypass ? 'days: bypassed' : (daysOk ? 'days: ≥14' : `days: ${entries}/14`);
   $('#pill-days').classList.toggle('on', daysOk);
   $('#pill-days').classList.toggle('warn', !daysOk);
 
   $('#unlock-status').innerHTML = flagOk && daysOk
-    ? `<strong style="color:var(--good);">Agent unlocked.</strong>
+    ? `<strong style="color:var(--good);">Agent unlocked${bypass ? ' (gate bypassed)' : ''}.</strong>
        Open <a href="agent.html" style="color:var(--accent);">agent.html</a> when you are ready.`
     : `<strong style="color:var(--warn);">Locked.</strong>
        ${entriesRemaining > 0
@@ -2086,6 +2101,13 @@ async function renderSettings() {
          : 'You have enough entries — set <code>agent_enabled: true</code> in <code>config.json</code> to flip the flag.'}
        ${firstEntryDays !== null ? `<br><span class="hint">First entry was ${firstEntryDays} day${firstEntryDays === 1 ? '' : 's'} ago.</span>` : ''}`;
 }
+document.addEventListener('change', (e) => {
+  if (e.target && e.target.id === 'bypass-gate') {
+    S.update(s => { s.settings.bypassGate = e.target.checked; });
+    renderSettings();
+    toast(e.target.checked ? 'Gate bypassed. Agent unlocked.' : 'Bypass cleared. 14-day rule restored.');
+  }
+});
 $('#api-save').addEventListener('click', () => {
   const key = $('#api-key').value.trim();
   S.update(s => { s.settings.apiKey = key; });

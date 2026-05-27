@@ -188,21 +188,23 @@ async function loadConfig() {
 async function checkGate() {
   const cfg = await loadConfig();
   const entries = S.reflectionEntryCount();
+  const bypass = !!(S.read().settings && S.read().settings.bypassGate);
   return {
     cfg,
     entries,
-    flagOk: cfg.agent_enabled === true,
-    daysOk: entries >= 14,
-    unlocked: cfg.agent_enabled === true && entries >= 14,
+    bypass,
+    flagOk: cfg.agent_enabled === true || bypass,
+    daysOk: entries >= 14 || bypass,
+    unlocked: bypass || (cfg.agent_enabled === true && entries >= 14),
   };
 }
 
-function setGateStatus({ flagOk, daysOk, entries }) {
+function setGateStatus({ flagOk, daysOk, entries, bypass }) {
   const f = $('#status-flag');
-  f.textContent = flagOk ? 'flag: on' : 'flag: off';
+  f.textContent = bypass ? 'flag: bypassed' : (flagOk ? 'flag: on' : 'flag: off');
   f.className = 'pill ' + (flagOk ? 'on' : 'warn');
   const d = $('#status-days');
-  d.textContent = daysOk ? 'days: ≥14' : `days: ${entries}/14`;
+  d.textContent = bypass ? 'days: bypassed' : (daysOk ? 'days: ≥14' : `days: ${entries}/14`);
   d.className = 'pill ' + (daysOk ? 'on' : 'warn');
 }
 
